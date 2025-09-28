@@ -1,7 +1,25 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
+import path from "path";
+import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+  base: "/SitePages/managerConfirmation.aspx",
+  build: {
+    outDir: "dist",
+    assetsDir: ".",
+    rollupOptions: {
+      output: {
+        entryFileNames: `index.js`,
+        chunkFileNames: `chunk.js`,
+        assetFileNames: `index.css`,
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  plugins: [react(), tailwindcss()],
+});
