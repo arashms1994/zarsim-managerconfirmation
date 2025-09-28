@@ -1,16 +1,21 @@
-import { BASE_URL } from "./base";
-import { useQuery } from "@tanstack/react-query";
 import type {
   ICashListItem,
+  IChangePreInvoiceRowHistoryListItem,
   IFile,
   IFileDownloadLinkProps,
-} from "@/utils/type";
+} from "../types/type";
+import { BASE_URL } from "./base";
+import { useQuery } from "@tanstack/react-query";
 
-export async function getAllCashListItems(): Promise<ICashListItem[]> {
-  const listTitle = "Cash_List";
-  let items: ICashListItem[] = [];
+export async function getAllChangePreInvoiceRowHistoryList(): Promise<
+  IChangePreInvoiceRowHistoryListItem[]
+> {
+  const listTitle = "changePreInvoiceRowHistory";
+  let items: IChangePreInvoiceRowHistoryListItem[] = [];
 
-  let nextUrl: string | null = `${BASE_URL}/_api/web/lists/getbytitle('${listTitle}')/items?$orderby=ID desc`;
+  let nextUrl:
+    | string
+    | null = `${BASE_URL}/_api/web/lists/getbytitle('${listTitle}')/items?$orderby=ID desc`;
 
   try {
     while (nextUrl) {
@@ -23,20 +28,78 @@ export async function getAllCashListItems(): Promise<ICashListItem[]> {
 
       if (!res.ok) {
         const err = await res.text();
-        throw new Error(`خطا در گرفتن آیتم‌های Cash_List: ${err} (Status: ${res.status})`);
+        throw new Error(
+          `خطا در گرفتن آیتم‌های Cash_List: ${err} (Status: ${res.status})`
+        );
       }
 
-      const json: { d: { results: ICashListItem[]; __next?: string } } = await res.json();
+      const json: {
+        d: { results: IChangePreInvoiceRowHistoryListItem[]; __next?: string };
+      } = await res.json();
 
       const results = json.d?.results;
       if (!Array.isArray(results)) {
-        throw new Error("ساختار داده‌ی برگشتی نامعتبر است: results یک آرایه نیست");
+        throw new Error(
+          "ساختار داده‌ی برگشتی نامعتبر است: results یک آرایه نیست"
+        );
       }
 
       items = [...items, ...results];
       nextUrl = json.d.__next ?? null;
 
-      console.log(`دریافت ${results.length} آیتم. کل آیتم‌ها: ${items.length}, Next URL: ${nextUrl}`);
+      console.log(
+        `دریافت ${results.length} آیتم. کل آیتم‌ها: ${items.length}, Next URL: ${nextUrl}`
+      );
+    }
+
+    console.log(`کل آیتم‌های دریافت‌شده: ${items.length}`);
+    return items;
+  } catch (err) {
+    console.error("خطا در دریافت آیتم‌های Cash_List:", err);
+    throw err;
+  }
+}
+
+export async function getAllCashListItems(): Promise<ICashListItem[]> {
+  const listTitle = "Cash_List";
+  let items: ICashListItem[] = [];
+
+  let nextUrl:
+    | string
+    | null = `${BASE_URL}/_api/web/lists/getbytitle('${listTitle}')/items?$orderby=ID desc`;
+
+  try {
+    while (nextUrl) {
+      const res = await fetch(nextUrl, {
+        headers: {
+          Accept: "application/json;odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+        },
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(
+          `خطا در گرفتن آیتم‌های Cash_List: ${err} (Status: ${res.status})`
+        );
+      }
+
+      const json: { d: { results: ICashListItem[]; __next?: string } } =
+        await res.json();
+
+      const results = json.d?.results;
+      if (!Array.isArray(results)) {
+        throw new Error(
+          "ساختار داده‌ی برگشتی نامعتبر است: results یک آرایه نیست"
+        );
+      }
+
+      items = [...items, ...results];
+      nextUrl = json.d.__next ?? null;
+
+      console.log(
+        `دریافت ${results.length} آیتم. کل آیتم‌ها: ${items.length}, Next URL: ${nextUrl}`
+      );
     }
 
     console.log(`کل آیتم‌های دریافت‌شده: ${items.length}`);
@@ -88,6 +151,14 @@ async function fetchFiles({
 
   return [];
 }
+
+export const useChangePreInvoiceRow = () => {
+  return useQuery<IChangePreInvoiceRowHistoryListItem[], Error>({
+    queryKey: ["changePreInvoiceRowHistory"],
+    queryFn: () => getAllChangePreInvoiceRowHistoryList(),
+    staleTime: 2000,
+  });
+};
 
 export const useCashListItems = () => {
   return useQuery<ICashListItem[], Error>({
