@@ -1,10 +1,10 @@
 import "./App.css";
-import { CashTable } from "./components/cash-table/CashTable";
+import { ChangeHistoryTable } from "./components/change-history-table/ChangeHistoryTable";
 
 function App() {
   return (
     <>
-      <CashTable />
+      <ChangeHistoryTable />
     </>
   );
 }

@@ -134,7 +134,7 @@ const columns: ColumnDef<ICashListItem>[] = [
   },
 ];
 
-export function CashTable() {
+export function ChangeHistoryTable() {
   const { data: cashListItems = [], isLoading } = useCashListItems();
   const { data: changechangePreInvoiceRowHistory = [] } =
     useChangePreInvoiceRow();
