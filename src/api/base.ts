@@ -1,1 +1,1 @@
-export const BASE_URL = "https://crm.zarsim.com";
+export const BASE_URL = "https://portal.zarsim.com";

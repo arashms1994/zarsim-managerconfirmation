@@ -1,13 +1,10 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import type { ICashListItem } from "@/utils/type";
-import { useCashListItems } from "@/api/getData";
 import { Skeleton } from "../ui/skeleton";
 import {
   ArrowUpDown,
   CircleChevronLeft,
   CircleChevronRight,
+  Table,
 } from "lucide-react";
 import {
   useReactTable,
@@ -21,17 +18,20 @@ import {
   type ColumnFiltersState,
   type VisibilityState,
 } from "@tanstack/react-table";
+import FileDownloadLink from "../ui/FileDownloadLink";
+import { ActionsCell } from "../action-colomn/ActionCell";
+import type { ICashListItem } from "../../types/type";
+import { Button } from "../ui/button";
+import { formatNumberWithComma } from "../../lib/formatNumberWithComma";
+import { useCashListItems, useChangePreInvoiceRow } from "../../api/getData";
+import { Input } from "../ui/input";
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import FileDownloadLink from "../ui/FileDownloadLink";
-import { ActionsCell } from "../action-colomn/ActionCell";
-import { formatNumberWithComma } from "@/utils/formatNumberWithComma";
+} from "../ui/table";
 
 const columns: ColumnDef<ICashListItem>[] = [
   {
@@ -136,10 +136,17 @@ const columns: ColumnDef<ICashListItem>[] = [
 
 export function CashTable() {
   const { data: cashListItems = [], isLoading } = useCashListItems();
+  const { data: changechangePreInvoiceRowHistory = [] } =
+    useChangePreInvoiceRow();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  console.log(
+    "changechangePreInvoiceRowHistory:",
+    changechangePreInvoiceRowHistory
+  );
 
   const table = useReactTable({
     data: cashListItems,

@@ -1,7 +1,7 @@
 import { BASE_URL } from "./base";
-import { getDigest } from "../utils/getDigest";
+import { getDigest } from "../lib/getDigest";
 import { Bounce, toast } from "react-toastify";
-import type { ICashListItem } from "@/utils/type";
+import type { ICashListItem } from "../types/type";
 
 export async function addCashReceipt(data: {
   Title: string;

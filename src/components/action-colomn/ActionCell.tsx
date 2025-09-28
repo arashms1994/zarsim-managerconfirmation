@@ -1,8 +1,8 @@
-import { handleApprove, handleReject } from "@/api/addData";
-import type { ICashListItem } from "@/utils/type";
 import { useQueryClient } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import { useState } from "react";
+import type { ICashListItem } from "../../types/type";
+import { handleApprove, handleReject } from "../../api/addData";
 
 export const ActionsCell: React.FC<{ cashItem: ICashListItem }> = ({
   cashItem,

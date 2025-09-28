@@ -1,7 +1,7 @@
-import { BASE_URL } from "@/api/base";
+import { BASE_URL } from "../../api/base";
+import { useFiles } from "../../api/getData";
+import type { IFileDownloadLinkProps } from "../../types/type";
 import { Skeleton } from "./skeleton";
-import { useFiles } from "@/api/getData";
-import type { IFileDownloadLinkProps } from "@/utils/type";
 
 const FileDownloadLink: React.FC<IFileDownloadLinkProps> = ({
   customerGuid,
