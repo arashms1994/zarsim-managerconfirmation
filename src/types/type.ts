@@ -1,9 +1,3 @@
-export interface IFileUploaderProps {
-  orderNumber: string | null;
-  subFolder: string;
-  docType?: string;
-}
-
 export interface ICashListItem {
   ID: number;
   Title: string;
@@ -22,19 +16,21 @@ export interface ITableUIProps {
   backgroundColor?: string;
 }
 
-export interface IFileDownloadLinkProps {
-  customerGuid: string;
-  itemGuid: string;
+interface Deferred {
+  uri: string;
 }
 
-export interface IAttachmentFile {
-  fileName: string;
-  fileUrl: string;
+interface SharePointUser {
+  Id: number;
+  Title?: string;
+  [key: string]: any;
 }
 
-export interface IFile {
-  Name: string;
-  ServerRelativeUrl: string;
+interface SharePointMetadata {
+  id: string;
+  uri: string;
+  etag: string;
+  type: "SP.Data.ChangePreInvoiceRowHistoryListItem";
 }
 
 export interface IChangePreInvoiceRowHistoryListItem {
@@ -60,9 +56,20 @@ export interface IChangePreInvoiceRowHistoryListItem {
   productCatgory?: string;
   Created: string | Date;
   Modified: string | Date;
+  Author?: SharePointUser | number;
+  Editor?: SharePointUser | number;
+  AttachmentFiles?: Deferred;
   Attachments?: boolean;
+  ContentType?: Deferred;
   ContentTypeId?: string;
   FileSystemObjectType?: number;
+  FirstUniqueAncestorSecurableObject?: Deferred;
+  Folder?: Deferred;
   GUID?: string;
+  GetDlpPolicyTip?: Deferred;
+  ParentList?: Deferred;
+  RoleAssignments?: Deferred;
   OData__UIVersionString?: string;
+  __metadata: SharePointMetadata;
+  [key: string]: any;
 }
