@@ -6,25 +6,55 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
   IChangePreInvoiceRowHistoryListItem[]
 > {
   const listTitle = "changePreInvoiceRowHistory";
+  const selectFields = [
+    "Id",
+    "Title",
+    "printTitle",
+    "printType",
+    "productTittle",
+    "colorFinalCode",
+    "colorTitle",
+    "packingTitle",
+    "preInvoiceProductTitle",
+    "finalGenerationCode",
+    "finalProductCode",
+    "packingCode",
+    "orderNumber",
+    "productCode",
+    "amount",
+    "productionAmount",
+    "price",
+    "totalPrice",
+    "productCatgory",
+    "Created",
+    "Modified",
+    "Author/Id",
+    "Author/Title",
+    "Editor/Id",
+    "Editor/Title",
+    "ContentTypeId",
+    "OData__UIVersionString",
+    "Attachments",
+    "status",
+  ].join(",");
   let items: IChangePreInvoiceRowHistoryListItem[] = [];
-
   let nextUrl:
     | string
-    | null = `${BASE_URL}/_api/web/lists/getbytitle('${listTitle}')/items?$orderby=ID desc`;
+    | null = `${BASE_URL}/_api/web/lists/getbytitle('${listTitle}')/items?$orderby=ID desc&$expand=Author,Editor&$select=${selectFields}`;
 
   try {
     while (nextUrl) {
       const res = await fetch(nextUrl, {
         headers: {
           Accept: "application/json;odata=verbose",
-          "Content-Type": "application/json;odata=verbose",
         },
+        credentials: "include",
       });
 
       if (!res.ok) {
         const err = await res.text();
         throw new Error(
-          `خطا در گرفتن آیتم‌های Cash_List: ${err} (Status: ${res.status})`
+          `خطا در گرفتن آیتم‌های changePreInvoiceRowHistory: ${err} (Status: ${res.status})`
         );
       }
 
@@ -50,7 +80,7 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
     console.log(`کل آیتم‌های دریافت‌شده: ${items.length}`);
     return items;
   } catch (err) {
-    console.error("خطا در دریافت آیتم‌های Cash_List:", err);
+    console.error("خطا در دریافت آیتم‌های changePreInvoiceRowHistory:", err);
     throw err;
   }
 }
@@ -60,5 +90,6 @@ export const useChangePreInvoiceRow = () => {
     queryKey: ["changePreInvoiceRowHistory"],
     queryFn: () => getAllChangePreInvoiceRowHistoryList(),
     staleTime: 2000,
+    retry: 1,
   });
 };

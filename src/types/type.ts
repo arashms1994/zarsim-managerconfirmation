@@ -36,6 +36,7 @@ interface SharePointMetadata {
 export interface IChangePreInvoiceRowHistoryListItem {
   Id: number;
   Title?: string;
+  status?: string;
   printTitle?: string;
   printType?: string;
   productTittle?: string;
@@ -56,20 +57,19 @@ export interface IChangePreInvoiceRowHistoryListItem {
   productCatgory?: string;
   Created: string | Date;
   Modified: string | Date;
-  Author?: SharePointUser | number;
-  Editor?: SharePointUser | number;
-  AttachmentFiles?: Deferred;
-  Attachments?: boolean;
-  ContentType?: Deferred;
+  Author: SharePointUser;
+  Editor: SharePointUser;
   ContentTypeId?: string;
-  FileSystemObjectType?: number;
-  FirstUniqueAncestorSecurableObject?: Deferred;
-  Folder?: Deferred;
-  GUID?: string;
-  GetDlpPolicyTip?: Deferred;
-  ParentList?: Deferred;
-  RoleAssignments?: Deferred;
   OData__UIVersionString?: string;
+  Attachments?: boolean;
+  GUID?: string;
+  _ModerationStatus?: number;
+  _ModerationComments?: string;
+  AttachmentFiles?: Deferred;
+  ContentType?: Deferred;
+  File?: Deferred;
+  Folder?: Deferred;
+  FileSystemObjectType?: number;
   __metadata: SharePointMetadata;
   [key: string]: any;
 }
