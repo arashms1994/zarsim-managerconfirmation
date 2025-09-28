@@ -4,7 +4,6 @@ import {
   ArrowUpDown,
   CircleChevronLeft,
   CircleChevronRight,
-  Table,
 } from "lucide-react";
 import {
   useReactTable,
@@ -18,138 +17,77 @@ import {
   type ColumnFiltersState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import FileDownloadLink from "../ui/FileDownloadLink";
-import { ActionsCell } from "../action-colomn/ActionCell";
-import type { ICashListItem } from "../../types/type";
 import { Button } from "../ui/button";
-import { formatNumberWithComma } from "../../lib/formatNumberWithComma";
-import { useCashListItems, useChangePreInvoiceRow } from "../../api/getData";
+import { useChangePreInvoiceRow } from "../../api/getData";
 import { Input } from "../ui/input";
 import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "../ui/table";
+import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
 
-const columns: ColumnDef<ICashListItem>[] = [
+const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
-    accessorKey: "reference_number",
-    header: "شماره مرجع",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("reference_number")}</div>
-    ),
-  },
-
-  {
-    accessorKey: "customer_title",
+    accessorKey: "Title",
     header: ({ column }) => (
       <Button
         type="button"
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        نام مشتری
+        شماره ردیف در پیش‌فاکتور
         <ArrowUpDown />
       </Button>
     ),
-    cell: ({ row }) => <div>{row.getValue("customer_title")}</div>,
+    cell: ({ row }) => <div>{row.getValue("Title")}</div>,
+    enableGlobalFilter: true,
   },
-
   {
-    accessorKey: "due_date",
-    header: ({ column }) => (
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        تاریخ واریز
-        <ArrowUpDown />
-      </Button>
-    ),
-    cell: ({ row }) => <div>{row.getValue("due_date")}</div>,
+    accessorKey: "productTitle",
+    header: "شرح محصول",
+    cell: ({ row }) => <div>{row.getValue("productTitle") || "-"}</div>,
+    enableGlobalFilter: true,
   },
-
   {
-    accessorKey: "count",
-    header: ({ column }) => (
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        مبلغ (ريال)
-        <ArrowUpDown />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div>{formatNumberWithComma(row.getValue("count"))}</div>
-    ),
+    accessorKey: "colorTitle",
+    header: "رنگ",
+    cell: ({ row }) => <div>{row.getValue("colorTitle") || "-"}</div>,
+    enableGlobalFilter: true,
   },
-
   {
-    accessorKey: "bank_account",
-    header: "شماره حساب",
-    cell: ({ row }) => <div>{row.getValue("bank_account")}</div>,
+    accessorKey: "packingTitle",
+    header: "بسته‌بندی",
+    cell: ({ row }) => <div>{row.getValue("packingTitle") || "-"}</div>,
+    enableGlobalFilter: true,
   },
-
-  // {
-  //   accessorKey: "description",
-  //   header: "توضیحات",
-  //   cell: ({ row }) => (
-  //     <div>{row.getValue("description") || "توضیحاتی وجود ندارد."}</div>
-  //   ),
-  // },
-
   {
-    id: "download",
-    header: "دانلود رسید",
-    cell: ({ row }) => {
-      const cashItem = row.original;
-      return (
-        <FileDownloadLink
-          customerGuid={cashItem.customer_GUID}
-          itemGuid={cashItem.Title}
-        />
-      );
-    },
-    enableSorting: false,
-    enableHiding: true,
+    accessorKey: "amount",
+    header: "مقدار",
+    cell: ({ row }) => <div>{row.getValue("amount") || "-"}</div>,
+    enableGlobalFilter: true,
   },
-
   {
-    id: "actions",
-    header: "عملیات",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const cashItem = row.original;
-
-      if (!cashItem.ID || !cashItem.Title) {
-        return <div className="text-red-500">داده‌های نامعتبر</div>;
-      }
-      return <ActionsCell cashItem={cashItem} />;
-    },
+    accessorKey: "productionAmount",
+    header: "مقدار جهت تولید",
+    cell: ({ row }) => <div>{row.getValue("productionAmount") || "-"}</div>,
+    enableGlobalFilter: true,
   },
 ];
 
 export function ChangeHistoryTable() {
-  const { data: cashListItems = [], isLoading } = useCashListItems();
-  const { data: changechangePreInvoiceRowHistory = [] } =
-    useChangePreInvoiceRow();
+  const { data: preInvoiceRows = [], isLoading } = useChangePreInvoiceRow();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-  console.log(
-    "changechangePreInvoiceRowHistory:",
-    changechangePreInvoiceRowHistory
-  );
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable({
-    data: cashListItems,
+    data: preInvoiceRows,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -159,11 +97,14 @@ export function ChangeHistoryTable() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "includesString",
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      globalFilter,
     },
   });
 
@@ -182,17 +123,10 @@ export function ChangeHistoryTable() {
   return (
     <div className="w-full">
       <Input
-        placeholder="جست و جوی شماره مرجع ..."
-        value={
-          (table.getColumn("reference_number")?.getFilterValue() as string) ??
-          ""
-        }
-        onChange={(event) =>
-          table
-            .getColumn("reference_number")
-            ?.setFilterValue(event.target.value)
-        }
-        className="max-w-sm px-2"
+        placeholder="جست‌وجو در همه ستون‌ها ..."
+        value={globalFilter ?? ""}
+        onChange={(event) => setGlobalFilter(event.target.value)}
+        className="max-w-sm px-2 mb-3"
       />
 
       <div className="overflow-hidden rounded-md border my-3">
@@ -251,7 +185,6 @@ export function ChangeHistoryTable() {
           >
             <CircleChevronRight color="black" />
           </div>
-
           <div
             className="flex items-center justify-center p-2 rounded-full hover:bg-slate-300 transition-all duration-300"
             onClick={() => table.previousPage()}
