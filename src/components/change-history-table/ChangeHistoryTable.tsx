@@ -29,6 +29,8 @@ import {
   TableRow,
 } from "../ui/table";
 import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
+import moment from "jalali-moment";
+import { getStatusLabel } from "../../lib/getStatusLabel";
 
 const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
@@ -47,33 +49,49 @@ const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
     enableGlobalFilter: true,
   },
   {
-    accessorKey: "productTitle",
+    accessorKey: "preInvoiceProductTitle",
     header: "شرح محصول",
-    cell: ({ row }) => <div>{row.getValue("productTitle") || "-"}</div>,
+    cell: ({ row }) => (
+      <div>{row.getValue("preInvoiceProductTitle") || "-"}</div>
+    ),
     enableGlobalFilter: true,
   },
   {
-    accessorKey: "colorTitle",
-    header: "رنگ",
-    cell: ({ row }) => <div>{row.getValue("colorTitle") || "-"}</div>,
+    accessorKey: "status",
+    header: "وضعیت",
+    cell: ({ row }) => (
+      <div>{getStatusLabel(row.getValue("status")) || "-"}</div>
+    ),
     enableGlobalFilter: true,
   },
   {
-    accessorKey: "packingTitle",
-    header: "بسته‌بندی",
-    cell: ({ row }) => <div>{row.getValue("packingTitle") || "-"}</div>,
+    accessorFn: (row) => row.Created || "-",
+    id: "Created",
+    header: ({ column }) => (
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        تاریخ درخواست
+        <ArrowUpDown />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const createdDate = row.getValue("Created");
+      const jalaliDate =
+        createdDate && createdDate !== "-"
+          ? moment(createdDate).locale("fa").format("YYYY/MM/DD")
+          : "-";
+      return <div>{jalaliDate}</div>;
+    },
     enableGlobalFilter: true,
   },
   {
-    accessorKey: "amount",
-    header: "مقدار",
-    cell: ({ row }) => <div>{row.getValue("amount") || "-"}</div>,
-    enableGlobalFilter: true,
-  },
-  {
-    accessorKey: "productionAmount",
-    header: "مقدار جهت تولید",
-    cell: ({ row }) => <div>{row.getValue("productionAmount") || "-"}</div>,
+    accessorFn: (row) => row.Editor?.Title || "-",
+    id: "editorTitle",
+    header: "عملیات",
+    cell: ({ row }) => <div>{row.getValue("editorTitle") || "-"}</div>,
     enableGlobalFilter: true,
   },
 ];
@@ -120,13 +138,15 @@ export function ChangeHistoryTable() {
     );
   }
 
+  console.log(preInvoiceRows);
+
   return (
     <div className="w-full">
       <Input
         placeholder="جست‌وجو در همه ستون‌ها ..."
         value={globalFilter ?? ""}
         onChange={(event) => setGlobalFilter(event.target.value)}
-        className="max-w-sm px-2 mb-3"
+        className="max-w-sm px-2 mb-3 border-2 rounded-xl"
       />
 
       <div className="overflow-hidden rounded-md border my-3">
