@@ -27,6 +27,10 @@ button {
   padding: 0px;
 }
 
+p {
+  margin: 0px;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
