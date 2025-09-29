@@ -10,6 +10,10 @@ const updateChangePreInvoiceRowStatus = async (
   const itemType = "SP.Data.ChangePreInvoiceRowHistoryListItem";
 
   try {
+    if (!itemType) {
+      throw new Error("نتوانستیم itemType لیست را دریافت کنیم");
+    }
+
     const searchUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=Title eq '${title}'`;
 
     const searchResponse = await fetch(searchUrl, {
@@ -64,6 +68,56 @@ const updateChangePreInvoiceRowStatus = async (
   }
 };
 
+const createNewOldListItem = async (originalItem: Record<string, unknown>) => {
+  const listGuid = "52c118f7-4c75-451e-80bb-850ab912ecff";
+  const itemType = "SP.Data.Detail_x005f_OldListItem";
+
+  try {
+    const digest = await getDigest();
+
+    // فقط فیلدهای ضروری و ساده رو ارسال می‌کنیم
+    const newItemData = {
+      __metadata: { type: itemType },
+      Title: String(originalItem.Title || ""),
+      Amount: String(originalItem.Amount || ""),
+      Customer: String(originalItem.Customer || ""),
+      CustomerCode: String(originalItem.CustomerCode || ""),
+      Product: String(originalItem.Product || ""),
+      Price: String(originalItem.Price || ""),
+      goods_title: String(originalItem.goods_title || ""),
+      goodscode: String(originalItem.goodscode || ""),
+      parent_ditaile_code: String(originalItem.parent_ditaile_code || ""),
+    };
+
+    console.log("JSON ارسالی:", JSON.stringify(newItemData, null, 2));
+
+    const createResponse = await fetch(
+      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json;odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          "X-RequestDigest": digest,
+        },
+        body: JSON.stringify(newItemData),
+      }
+    );
+
+    if (!createResponse.ok) {
+      const errorText = await createResponse.text();
+      throw new Error(
+        `خطای HTTP در ایجاد ردیف جدید: ${createResponse.status} - ${errorText}`
+      );
+    }
+
+    console.log("ردیف جدید در OldList با موفقیت ایجاد شد");
+  } catch (err) {
+    console.error("خطا در ایجاد ردیف جدید در OldList:", err);
+    throw err;
+  }
+};
+
 export const handleApproveChangePreInvoiceRow = async (rowData: {
   Title: string;
   finalProductCode: string;
@@ -72,6 +126,12 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
   const itemType = "SP.Data.Detail_x005f_customer_x005f_factorListItem";
 
   try {
+    if (!itemType) {
+      throw new Error(
+        "نتوانستیم itemType لیست DetailCustomerFactor را دریافت کنیم"
+      );
+    }
+
     const searchUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=parent_ditaile_code eq '${rowData.Title}'`;
 
     const searchResponse = await fetch(searchUrl, {
@@ -119,6 +179,10 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
       );
     }
 
+    // حالا یک ردیف جدید در لیست OldList ایجاد می‌کنیم
+    await createNewOldListItem(targetItem);
+
+    // حالا وضعیت ردیف در لیست changePreInvoiceRowHistory رو هم به "1" تغییر می‌دهیم
     await updateChangePreInvoiceRowStatus(rowData.Title, "1");
 
     toast.success(`ردیف ${rowData.Title} با موفقیت تأیید و آپدیت شد.`, {

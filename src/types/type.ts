@@ -220,6 +220,7 @@ export interface IBastebandiShodeListItem {
   vaznkhales?: string | null;
   yebar?: string | null;
 }
+
 export interface IOrderProductsListItem {
   Id: number;
   Title?: string;
