@@ -13,7 +13,7 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
 > {
   const listTitle = "changePreInvoiceRowHistory";
   const selectFields = [
-    "Id",
+    "ID",
     "Title",
     "printTitle",
     "printType",

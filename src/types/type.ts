@@ -16,6 +16,7 @@ interface SharePointMetadata {
 }
 
 export interface IChangePreInvoiceRowHistoryListItem {
+  ID: number;
   Title: string;
   printTitle: string;
   printType: string;

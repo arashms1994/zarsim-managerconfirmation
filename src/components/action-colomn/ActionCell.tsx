@@ -40,10 +40,12 @@ export const ActionsCell: React.FC<{
 
     setIsLoading(true);
     try {
-      await handleRejectChangePreInvoiceRow();
+      await handleRejectChangePreInvoiceRow({
+        Title: rowItem.Title,
+      });
 
       await queryClient.invalidateQueries({
-        queryKey: ["detailCustomerFactor", rowItem.parent_ditaile_code],
+        queryKey: ["changePreInvoiceRowHistory"],
       });
     } catch (error) {
       console.error("خطا در رد:", error);

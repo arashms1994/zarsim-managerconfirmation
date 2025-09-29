@@ -2,6 +2,68 @@ import { BASE_URL } from "./base";
 import { getDigest } from "../lib/getDigest";
 import { Bounce, toast } from "react-toastify";
 
+const updateChangePreInvoiceRowStatus = async (
+  title: string,
+  status: string
+) => {
+  const listGuid = "17062ABC-325C-48D5-B1ED-6D2C9308BEDB";
+  const itemType = "SP.Data.ChangePreInvoiceRowHistoryListItem";
+
+  try {
+    const searchUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=Title eq '${title}'`;
+
+    const searchResponse = await fetch(searchUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json;odata=verbose",
+      },
+    });
+
+    if (!searchResponse.ok) {
+      throw new Error(`خطای HTTP در جستجو: ${searchResponse.status}`);
+    }
+
+    const searchData = await searchResponse.json();
+    const targetItem = searchData.d.results?.[0];
+
+    if (!targetItem) {
+      throw new Error(
+        `ردیف با Title ${title} در لیست changePreInvoiceRowHistory یافت نشد`
+      );
+    }
+
+    const digest = await getDigest();
+
+    const updateResponse = await fetch(
+      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${targetItem.Id})`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json;odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          "X-RequestDigest": digest,
+          "X-HTTP-Method": "MERGE",
+          "IF-MATCH": "*",
+        },
+        body: JSON.stringify({
+          __metadata: { type: itemType },
+          status: status,
+        }),
+      }
+    );
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      throw new Error(
+        `خطای HTTP در آپدیت وضعیت: ${updateResponse.status} - ${errorText}`
+      );
+    }
+  } catch (err) {
+    console.error("خطا در آپدیت وضعیت changePreInvoiceRowHistory:", err);
+    throw err;
+  }
+};
+
 export const handleApproveChangePreInvoiceRow = async (rowData: {
   Title: string;
   finalProductCode: string;
@@ -57,6 +119,8 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
       );
     }
 
+    await updateChangePreInvoiceRowStatus(rowData.Title, "1");
+
     toast.success(`ردیف ${rowData.Title} با موفقیت تأیید و آپدیت شد.`, {
       position: "top-center",
       autoClose: 5000,
@@ -91,9 +155,13 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
   }
 };
 
-export const handleRejectChangePreInvoiceRow = async () => {
+export const handleRejectChangePreInvoiceRow = async (rowData: {
+  Title: string;
+}) => {
   try {
-    toast.success("رد اصلاحات با موفقیت ثبت شد.", {
+    await updateChangePreInvoiceRowStatus(rowData.Title, "2");
+
+    toast.success(`ردیف ${rowData.Title} با موفقیت رد شد.`, {
       position: "top-center",
       autoClose: 5000,
       hideProgressBar: false,
