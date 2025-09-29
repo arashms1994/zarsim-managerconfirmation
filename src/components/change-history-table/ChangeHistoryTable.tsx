@@ -32,6 +32,7 @@ import moment from "jalali-moment";
 import { getStatusLabel } from "../../lib/getStatusLabel";
 import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
 import { Modal } from "../modal/Modal";
+import { ActionsCell } from "../action-colomn/ActionCell";
 
 const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
@@ -92,7 +93,7 @@ const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
     accessorFn: (row) => row.Editor?.Title || "-",
     id: "editorTitle",
     header: "عملیات",
-    cell: ({ row }) => <div>{row.getValue("editorTitle") || "-"}</div>,
+    cell: ({ row }) => <ActionsCell rowItem={row.original} />,
     enableGlobalFilter: true,
   },
 ];

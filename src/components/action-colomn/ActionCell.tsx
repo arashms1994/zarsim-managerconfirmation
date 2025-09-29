@@ -1,78 +1,91 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import { useState } from "react";
-import type { ICashListItem } from "../../types/type";
-import { handleApprove, handleReject } from "../../api/addData";
+import { useQueryClient } from "@tanstack/react-query";
+import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
+import {
+  handleApproveChangePreInvoiceRow,
+  handleRejectChangePreInvoiceRow,
+} from "../../api/addData";
 
-export const ActionsCell: React.FC<{ cashItem: ICashListItem }> = ({
-  cashItem,
-}) => {
-  const [isApproving, setIsApproving] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
+export const ActionsCell: React.FC<{
+  rowItem: IChangePreInvoiceRowHistoryListItem;
+}> = ({ rowItem }) => {
   const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onApprove = async () => {
-    setIsApproving(true);
+  const handleApprove = async (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (isLoading) return;
+
+    setIsLoading(true);
     try {
-      await handleApprove(cashItem);
-      queryClient.invalidateQueries({ queryKey: ["cashListItems"] });
-    } catch (err) {
-      console.error(err);
+      await handleApproveChangePreInvoiceRow({
+        Title: rowItem.Title,
+        finalProductCode: rowItem.finalProductCode || "",
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["detailCustomerFactor", rowItem.parent_ditaile_code],
+      });
+    } catch (error) {
+      console.error("خطا در تأیید:", error);
     } finally {
-      setIsApproving(false);
+      setIsLoading(false);
     }
   };
 
-  const onReject = async () => {
-    setIsRejecting(true);
+  const handleReject = async (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (isLoading) return;
+
+    setIsLoading(true);
     try {
-      await handleReject(cashItem);
-      queryClient.invalidateQueries({ queryKey: ["cashListItems"] });
-    } catch (err) {
-      console.error(err);
+      await handleRejectChangePreInvoiceRow();
+
+      await queryClient.invalidateQueries({
+        queryKey: ["detailCustomerFactor", rowItem.parent_ditaile_code],
+      });
+    } catch (error) {
+      console.error("خطا در رد:", error);
     } finally {
-      setIsRejecting(false);
+      setIsLoading(false);
     }
   };
 
-  if (cashItem.status === "1") {
+  if (rowItem.status === "1") {
     return <div className="text-green-600 font-semibold">تأیید شده</div>;
   }
 
-  if (cashItem.status === "2") {
+  if (rowItem.status === "2") {
     return <div className="text-red-600 font-semibold">رد شده</div>;
   }
 
-  if (cashItem.status === "" || cashItem.status === "0") {
+  if (rowItem.status === "" || rowItem.status === "0") {
     return (
       <div className="space-x-2 flex items-center justify-center">
-        <div
-          onClick={onApprove}
-          className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${
-            isApproving ? "bg-gray-400" : "bg-green-400 hover:bg-green-600"
-          }`}
-          title="تأیید"
-        >
-          {isApproving ? (
-            <span className="text-xs">در حال پردازش...</span>
-          ) : (
-            <Check color="black" />
-          )}
-        </div>
+        {isLoading ? (
+          <div className="text-blue-600 text-sm font-medium">
+            در حال پردازش...
+          </div>
+        ) : (
+          <>
+            <div
+              title="تأیید"
+              onClick={handleApprove}
+              className="flex items-center justify-center p-2 rounded-full cursor-pointer transition-all duration-300 bg-green-400 hover:bg-green-600"
+            >
+              <Check color="black" size={20} />
+            </div>
 
-        <div
-          onClick={onReject}
-          className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${
-            isRejecting ? "bg-gray-400" : "bg-red-400 hover:bg-red-600"
-          }`}
-          title="رد"
-        >
-          {isRejecting ? (
-            <span className="text-xs">در حال پردازش...</span>
-          ) : (
-            <X color="black" />
-          )}
-        </div>
+            <div
+              title="رد"
+              onClick={handleReject}
+              className="flex items-center justify-center p-2 rounded-full cursor-pointer transition-all duration-300 bg-red-400 hover:bg-red-700"
+            >
+              <X color="black" size={20} />
+            </div>
+          </>
+        )}
       </div>
     );
   }

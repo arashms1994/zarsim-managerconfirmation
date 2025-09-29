@@ -1,60 +1,39 @@
 import { BASE_URL } from "./base";
 import { getDigest } from "../lib/getDigest";
 import { Bounce, toast } from "react-toastify";
-import type { ICashListItem } from "../types/type";
 
-export async function addCashReceipt(data: {
+export const handleApproveChangePreInvoiceRow = async (rowData: {
   Title: string;
-  count: string;
-  reference_number: string;
-  due_date: string;
-  status: string;
-}) {
-  const listName = "Cash_List";
-  const itemType = "SP.Data.Cash_x005f_ListListItem";
+  finalProductCode: string;
+}) => {
+  const listGuid = "c6636cfe-76e0-4e0f-b65f-c14893d3970e";
+  const itemType = "SP.Data.Detail_x005f_customer_x005f_factorListItem";
 
   try {
-    const digest = await getDigest();
+    const searchUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=parent_ditaile_code eq '${rowData.Title}'`;
 
-    await fetch(`${BASE_URL}/_api/web/lists/getbytitle('${listName}')/items`, {
-      method: "POST",
+    const searchResponse = await fetch(searchUrl, {
+      method: "GET",
       headers: {
         Accept: "application/json;odata=verbose",
-        "Content-Type": "application/json;odata=verbose",
-        "X-RequestDigest": digest,
       },
-      body: JSON.stringify({
-        __metadata: { type: itemType },
-        ...data,
-      }),
     });
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error("خطا:", err.message);
-    } else {
-      console.error("خطای ناشناس:", err);
+
+    if (!searchResponse.ok) {
+      throw new Error(`خطای HTTP در جستجو: ${searchResponse.status}`);
     }
-  }
-}
 
-export async function updateCashReceipt(
-  data: {
-    Title: string;
-    count: string;
-    reference_number: string;
-    due_date: string;
-    status: string;
-  },
-  ID: number
-) {
-  const listName = "Cash_List";
-  const itemType = "SP.Data.Cash_x005f_ListListItem";
+    const searchData = await searchResponse.json();
+    const targetItem = searchData.d.results?.[0];
 
-  try {
+    if (!targetItem) {
+      throw new Error("ردیف مورد نظر یافت نشد");
+    }
+
     const digest = await getDigest();
 
-    await fetch(
-      `${BASE_URL}/_api/web/lists/getbytitle('${listName}')/items(${ID})`,
+    const updateResponse = await fetch(
+      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${targetItem.Id})`,
       {
         method: "POST",
         headers: {
@@ -66,48 +45,19 @@ export async function updateCashReceipt(
         },
         body: JSON.stringify({
           __metadata: { type: itemType },
-          ...data,
+          goodscode: rowData.finalProductCode,
         }),
       }
     );
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error("خطا:", err.message);
-    } else {
-      console.error("خطای ناشناس:", err);
-    }
-  }
-}
 
-export const handleApprove = async (cashItem: ICashListItem) => {
-  try {
-    await updateCashReceipt(
-      {
-        Title: cashItem.Title,
-        count: cashItem.count,
-        reference_number: cashItem.reference_number,
-        due_date: cashItem.due_date,
-        status: "1",
-      },
-      cashItem.ID
-    );
-    toast.success(
-      `آیتم با شماره مرجع ${cashItem.reference_number} با موفقیت تأیید شد.`,
-      {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      }
-    );
-  } catch (err) {
-    console.error("خطا در تأیید درخواست:", err);
-    toast.error("خطا در تایید آیتم!", {
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      throw new Error(
+        `خطای HTTP در آپدیت: ${updateResponse.status} - ${errorText}`
+      );
+    }
+
+    toast.success(`ردیف ${rowData.Title} با موفقیت تأیید و آپدیت شد.`, {
       position: "top-center",
       autoClose: 5000,
       hideProgressBar: false,
@@ -118,39 +68,32 @@ export const handleApprove = async (cashItem: ICashListItem) => {
       theme: "colored",
       transition: Bounce,
     });
+
+    return { success: true, message: "تأیید با موفقیت انجام شد" };
+  } catch (err) {
+    console.error("خطا در تأیید تغییرات:", err);
+
+    const errorMessage = err instanceof Error ? err.message : "خطای ناشناس";
+
+    toast.error(`خطا در تأیید تغییرات: ${errorMessage}`, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Bounce,
+    });
+
     throw err;
   }
 };
 
-export const handleReject = async (cashItem: ICashListItem) => {
+export const handleRejectChangePreInvoiceRow = async () => {
   try {
-    await updateCashReceipt(
-      {
-        Title: cashItem.Title,
-        count: cashItem.count,
-        reference_number: cashItem.reference_number,
-        due_date: cashItem.due_date,
-        status: "2",
-      },
-      cashItem.ID
-    );
-    toast.success(
-      `آیتم با شماره مرجع ${cashItem.reference_number} با موفقیت رد شد.`,
-      {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Bounce,
-      }
-    );
-  } catch (err) {
-    console.error("خطا در رد درخواست:", err);
-    toast.error("خطا در رد آیتم!", {
+    toast.success("رد اصلاحات با موفقیت ثبت شد.", {
       position: "top-center",
       autoClose: 5000,
       hideProgressBar: false,
@@ -161,6 +104,25 @@ export const handleReject = async (cashItem: ICashListItem) => {
       theme: "colored",
       transition: Bounce,
     });
+
+    return { success: true, message: "رد با موفقیت انجام شد" };
+  } catch (err) {
+    console.error("خطا در رد تغییرات:", err);
+
+    const errorMessage = err instanceof Error ? err.message : "خطای ناشناس";
+
+    toast.error(`خطا در رد تغییرات: ${errorMessage}`, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Bounce,
+    });
+
     throw err;
   }
 };
