@@ -1,6 +1,12 @@
 import { BASE_URL } from "./base";
-import { useQuery } from "@tanstack/react-query";
-import type { IChangePreInvoiceRowHistoryListItem } from "../types/type";
+import type {
+  IBastebandiListItem,
+  IBastebandiShodeListItem,
+  IChangePreInvoiceRowHistoryListItem,
+  IDetailCustomerFactorListItem,
+  IOrderProductsListItem,
+  IPishraftMarahelTolidItem,
+} from "../types/type";
 
 export async function getAllChangePreInvoiceRowHistoryList(): Promise<
   IChangePreInvoiceRowHistoryListItem[]
@@ -36,6 +42,12 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
     "OData__UIVersionString",
     "Attachments",
     "status",
+    "coverColor",
+    "colorString",
+    "packingTittle",
+    "customerName",
+    "customerCode",
+    "preInvoiceCreateDate",
   ].join(",");
   let items: IChangePreInvoiceRowHistoryListItem[] = [];
   let nextUrl:
@@ -85,11 +97,150 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
   }
 }
 
-export const useChangePreInvoiceRow = () => {
-  return useQuery<IChangePreInvoiceRowHistoryListItem[], Error>({
-    queryKey: ["changePreInvoiceRowHistory"],
-    queryFn: () => getAllChangePreInvoiceRowHistoryList(),
-    staleTime: 2000,
-    retry: 1,
-  });
-};
+export async function getAllBastebandiList(): Promise<IBastebandiListItem[]> {
+  const listGuid = "9B482D2A-67F6-451B-BBA1-A47E5ABD95C5";
+  let allResults: IBastebandiListItem[] = [];
+  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+
+  try {
+    while (nextUrl) {
+      const response = await fetch(nextUrl, {
+        method: "GET",
+        headers: {
+          Accept: "application/json;odata=verbose",
+        },
+      });
+
+      const data = await response.json();
+
+      allResults = [...allResults, ...data.d.results];
+
+      nextUrl = data.d.__next || null;
+    }
+
+    return allResults;
+  } catch (err) {
+    console.error("خطا در دریافت آیتم‌ها:", err);
+    return [];
+  }
+}
+
+export async function getAllBasteBandiShodeList(): Promise<
+  IBastebandiShodeListItem[]
+> {
+  const listGuid = "1788C718-E3CA-461C-AF37-23B1C970F9DC";
+  let allResults: IBastebandiShodeListItem[] = [];
+  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+
+  try {
+    while (nextUrl) {
+      const response = await fetch(nextUrl, {
+        method: "GET",
+        headers: {
+          Accept: "application/json;odata=verbose",
+        },
+      });
+
+      const data = await response.json();
+
+      allResults = [...allResults, ...data.d.results];
+
+      nextUrl = data.d.__next || null;
+    }
+
+    return allResults;
+  } catch (err) {
+    console.error("خطا در دریافت آیتم‌ها:", err);
+    return [];
+  }
+}
+
+export async function getAllPishraftMaraheleTolidList(): Promise<
+  IPishraftMarahelTolidItem[]
+> {
+  const listGuid = "66184F05-6D40-473D-AE54-7E0C029BDEB2";
+  let allResults: IPishraftMarahelTolidItem[] = [];
+  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+
+  try {
+    while (nextUrl) {
+      const response = await fetch(nextUrl, {
+        method: "GET",
+        headers: {
+          Accept: "application/json;odata=verbose",
+        },
+      });
+
+      const data = await response.json();
+
+      allResults = [...allResults, ...data.d.results];
+
+      nextUrl = data.d.__next || null;
+    }
+
+    return allResults;
+  } catch (err) {
+    console.error("خطا در دریافت آیتم‌ها:", err);
+    return [];
+  }
+}
+
+export async function getAllOrderProductsList(): Promise<
+  IOrderProductsListItem[]
+> {
+  const listGuid = "B749FB13-24C9-4404-8200-BCFA5DED5EDC";
+  let allResults: IOrderProductsListItem[] = [];
+  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+
+  try {
+    while (nextUrl) {
+      const response = await fetch(nextUrl, {
+        method: "GET",
+        headers: {
+          Accept: "application/json;odata=verbose",
+        },
+      });
+
+      const data = await response.json();
+
+      allResults = [...allResults, ...data.d.results];
+
+      nextUrl = data.d.__next || null;
+    }
+
+    return allResults;
+  } catch (err) {
+    console.error("خطا در دریافت آیتم‌ها:", err);
+    return [];
+  }
+}
+
+export async function getAllDetailCustomerFactorList(): Promise<
+  IDetailCustomerFactorListItem[]
+> {
+  const listGuid = "C6636CFE-76E0-4E0F-B65F-C14893D3970E";
+  let allResults: IDetailCustomerFactorListItem[] = [];
+  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+
+  try {
+    while (nextUrl) {
+      const response = await fetch(nextUrl, {
+        method: "GET",
+        headers: {
+          Accept: "application/json;odata=verbose",
+        },
+      });
+
+      const data = await response.json();
+
+      allResults = [...allResults, ...data.d.results];
+
+      nextUrl = data.d.__next || null;
+    }
+
+    return allResults;
+  } catch (err) {
+    console.error("خطا در دریافت آیتم‌ها:", err);
+    return [];
+  }
+}

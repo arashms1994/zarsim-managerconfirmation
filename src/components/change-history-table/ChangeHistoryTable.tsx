@@ -18,7 +18,6 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 import { Button } from "../ui/button";
-import { useChangePreInvoiceRow } from "../../api/getData";
 import { Input } from "../ui/input";
 import {
   Table,
@@ -31,6 +30,7 @@ import {
 import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
 import moment from "jalali-moment";
 import { getStatusLabel } from "../../lib/getStatusLabel";
+import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
 
 const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
