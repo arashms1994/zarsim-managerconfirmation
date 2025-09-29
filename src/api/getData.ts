@@ -44,10 +44,13 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
     "status",
     "coverColor",
     "colorString",
-    "packingTittle",
     "customerName",
     "customerCode",
     "preInvoiceCreateDate",
+    "packingType",
+    "packingMaterial",
+    "packingSize",
+    "packingM",
   ].join(",");
   let items: IChangePreInvoiceRowHistoryListItem[] = [];
   let nextUrl:
@@ -215,32 +218,32 @@ export async function getAllOrderProductsList(): Promise<
   }
 }
 
-export async function getAllDetailCustomerFactorList(): Promise<
-  IDetailCustomerFactorListItem[]
-> {
+export async function getAllDetailCustomerFactorList(
+  parentDetailCode: string
+): Promise<IDetailCustomerFactorListItem | null> {
   const listGuid = "C6636CFE-76E0-4E0F-B65F-C14893D3970E";
-  let allResults: IDetailCustomerFactorListItem[] = [];
-  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=parent_ditaile_code eq '${parentDetailCode}'`;
 
   try {
-    while (nextUrl) {
-      const response = await fetch(nextUrl, {
-        method: "GET",
-        headers: {
-          Accept: "application/json;odata=verbose",
-        },
-      });
+    const response = await fetch(nextUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json;odata=verbose",
+      },
+    });
 
-      const data = await response.json();
-
-      allResults = [...allResults, ...data.d.results];
-
-      nextUrl = data.d.__next || null;
+    if (!response.ok) {
+      throw new Error(`خطای HTTP: ${response.status}`);
     }
 
-    return allResults;
+    const data = await response.json();
+
+    const result =
+      data.d.results && data.d.results.length > 0 ? data.d.results[0] : null;
+
+    return result;
   } catch (err) {
-    console.error("خطا در دریافت آیتم‌ها:", err);
-    return [];
+    console.error("خطا در دریافت آیتم:", err);
+    return null;
   }
 }

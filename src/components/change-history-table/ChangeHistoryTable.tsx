@@ -31,6 +31,7 @@ import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
 import moment from "jalali-moment";
 import { getStatusLabel } from "../../lib/getStatusLabel";
 import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
+import { Modal } from "../modal/Modal";
 
 const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
@@ -103,6 +104,9 @@ export function ChangeHistoryTable() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRowData, setSelectedRowData] =
+    useState<IChangePreInvoiceRowHistoryListItem | null>(null);
 
   const table = useReactTable({
     data: preInvoiceRows,
@@ -126,6 +130,11 @@ export function ChangeHistoryTable() {
     },
   });
 
+  const handleRowClick = (row: IChangePreInvoiceRowHistoryListItem) => {
+    setSelectedRowData(row);
+    setIsModalOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col space-y-3">
@@ -138,15 +147,13 @@ export function ChangeHistoryTable() {
     );
   }
 
-  console.log(preInvoiceRows);
-
   return (
     <div className="w-full">
       <Input
         placeholder="جست‌وجو در همه ستون‌ها ..."
         value={globalFilter ?? ""}
         onChange={(event) => setGlobalFilter(event.target.value)}
-        className="max-w-sm px-2 mb-3 border-2 rounded-xl"
+        className="max-w-sm px-2 mb-3 border-2 rounded-xl text-base"
       />
 
       <div className="overflow-hidden rounded-md border my-3">
@@ -173,6 +180,8 @@ export function ChangeHistoryTable() {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => handleRowClick(row.original)}
+                  className="hover:bg-slate-300 transition-all duration-300 cursor-pointer h-10"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -213,6 +222,11 @@ export function ChangeHistoryTable() {
           </div>
         </div>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        rowData={selectedRowData}
+      />
     </div>
   );
 }
