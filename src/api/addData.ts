@@ -75,7 +75,6 @@ const createNewOldListItem = async (originalItem: Record<string, unknown>) => {
   try {
     const digest = await getDigest();
 
-    // فقط فیلدهای ضروری و ساده رو ارسال می‌کنیم
     const newItemData = {
       __metadata: { type: itemType },
       Title: String(originalItem.Title || ""),
@@ -179,10 +178,8 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
       );
     }
 
-    // حالا یک ردیف جدید در لیست OldList ایجاد می‌کنیم
     await createNewOldListItem(targetItem);
 
-    // حالا وضعیت ردیف در لیست changePreInvoiceRowHistory رو هم به "1" تغییر می‌دهیم
     await updateChangePreInvoiceRowStatus(rowData.Title, "1");
 
     toast.success(`ردیف ${rowData.Title} با موفقیت تأیید و آپدیت شد.`, {

@@ -51,6 +51,7 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
     "packingMaterial",
     "packingSize",
     "packingM",
+    "STW",
   ].join(",");
   let items: IChangePreInvoiceRowHistoryListItem[] = [];
   let nextUrl:
