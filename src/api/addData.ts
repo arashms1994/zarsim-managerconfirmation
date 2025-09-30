@@ -412,11 +412,6 @@ const updateBastebandiFields = async (
   }
 };
 
-/**
- * آپدیت لیست PishraftMarahelTolid با اطلاعات جدید
- * @param shomaresefaresh - شماره سفارش
- * @param rowData - داده‌های جدید
- */
 const updatePishraftMarahelTolidFields = async (
   shomaresefaresh: string,
   rowData: {
@@ -443,7 +438,6 @@ const updatePishraftMarahelTolidFields = async (
   }
 ) => {
   try {
-    // 1. بررسی وجود ردیف در PishraftMarahelTolid
     const existingItem = await getAllPishraftMaraheleTolidList(shomaresefaresh);
 
     if (!existingItem) {
@@ -454,13 +448,11 @@ const updatePishraftMarahelTolidFields = async (
     }
 
     const listGuid = "66184F05-6D40-473D-AE54-7E0C029BDEB2";
-    const itemType = "SP.Data.PishraftMarahelTolidItem";
+    const itemType = "SP.Data.ComparionofprandactualpListItem";
     const digest = await getDigest();
 
-    // تجزیه productTitle برای استخراج فیلدهای جدید
     const parsedProduct = parseProductTitle(rowData.productTittle);
 
-    // 2. آپدیت فیلدها بر اساس mapping جدید
     const updateResponse = await fetch(
       `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${existingItem.Id})`,
       {
