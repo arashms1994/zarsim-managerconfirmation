@@ -22,6 +22,26 @@ export const ActionsCell: React.FC<{
       await handleApproveChangePreInvoiceRow({
         Title: rowItem.Title,
         finalProductCode: rowItem.finalProductCode || "",
+        STW: rowItem.STW || "",
+        printTitle: rowItem.printTitle || "",
+        productTittle: rowItem.productTittle || "",
+        colorFinalCode: rowItem.colorFinalCode || "",
+        colorTitle: rowItem.colorTitle || "",
+        packingTitle: rowItem.packingTitle || "",
+        preInvoiceProductTitle: rowItem.preInvoiceProductTitle || "",
+        finalGenerationCode: rowItem.finalGenerationCode || "",
+        packingCode: rowItem.packingCode || "",
+        productCode: rowItem.productCode || "",
+        coverColor: rowItem.coverColor || "",
+        colorString: rowItem.colorString || "",
+        amount: rowItem.amount || "",
+        productionAmount: rowItem.productionAmount || "",
+        price: rowItem.price || "",
+        productCatgory: rowItem.productCatgory || "",
+        packingType: rowItem.packingType || "",
+        packingMaterial: rowItem.packingMaterial || "",
+        packingSize: rowItem.packingSize || "",
+        packingM: rowItem.packingM || "",
       });
 
       await queryClient.invalidateQueries({
