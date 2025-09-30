@@ -101,91 +101,102 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
   }
 }
 
-export async function getAllBastebandiList(): Promise<IBastebandiListItem[]> {
+export async function getBastebandiList(
+  shomarefactor: string
+): Promise<IBastebandiListItem | null> {
   const listGuid = "9B482D2A-67F6-451B-BBA1-A47E5ABD95C5";
-  let allResults: IBastebandiListItem[] = [];
-  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomarefactor eq '${encodeURIComponent(
+    shomarefactor
+  )}'&$top=1`;
 
   try {
-    while (nextUrl) {
-      const response = await fetch(nextUrl, {
-        method: "GET",
-        headers: {
-          Accept: "application/json;odata=verbose",
-        },
-      });
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json;odata=verbose",
+      },
+    });
 
-      const data = await response.json();
-
-      allResults = [...allResults, ...data.d.results];
-
-      nextUrl = data.d.__next || null;
+    if (!response.ok) {
+      throw new Error(`خطا در درخواست: ${response.statusText}`);
     }
 
-    return allResults;
+    const data = await response.json();
+
+    const result = data.d.results as IBastebandiListItem[];
+    if (result.length > 0) {
+      return result[0];
+    }
+
+    return null;
   } catch (err) {
-    console.error("خطا در دریافت آیتم‌ها:", err);
-    return [];
+    console.error("خطا در دریافت آیتم:", err);
+    return null;
   }
 }
 
-export async function getAllBasteBandiShodeList(): Promise<
-  IBastebandiShodeListItem[]
-> {
+export async function getAllBasteBandiShodeList(
+  shomarefactor: string
+): Promise<IBastebandiShodeListItem | null> {
   const listGuid = "1788C718-E3CA-461C-AF37-23B1C970F9DC";
-  let allResults: IBastebandiShodeListItem[] = [];
-  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+
+  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomarefactor eq '${encodeURIComponent(
+    shomarefactor
+  )}'&$top=1`;
 
   try {
-    while (nextUrl) {
-      const response = await fetch(nextUrl, {
-        method: "GET",
-        headers: {
-          Accept: "application/json;odata=verbose",
-        },
-      });
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json;odata=verbose",
+      },
+    });
 
-      const data = await response.json();
-
-      allResults = [...allResults, ...data.d.results];
-
-      nextUrl = data.d.__next || null;
+    if (!response.ok) {
+      throw new Error(`خطا در درخواست: ${response.statusText}`);
     }
 
-    return allResults;
+    const data = await response.json();
+
+    const result = data.d.results as IBastebandiListItem[];
+    if (result.length > 0) {
+      return result[0];
+    }
+
+    return null;
   } catch (err) {
-    console.error("خطا در دریافت آیتم‌ها:", err);
-    return [];
+    console.error("خطا در دریافت آیتم:", err);
+    return null;
   }
 }
 
-export async function getAllPishraftMaraheleTolidList(): Promise<
-  IPishraftMarahelTolidItem[]
-> {
+export async function getAllPishraftMaraheleTolidList(
+  shomaresefaresh: string
+): Promise<IPishraftMarahelTolidItem | null> {
   const listGuid = "66184F05-6D40-473D-AE54-7E0C029BDEB2";
-  let allResults: IPishraftMarahelTolidItem[] = [];
-  let nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items`;
+  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomaresefaresh eq '${shomaresefaresh}'`;
 
   try {
-    while (nextUrl) {
-      const response = await fetch(nextUrl, {
-        method: "GET",
-        headers: {
-          Accept: "application/json;odata=verbose",
-        },
-      });
+    const response = await fetch(nextUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json;odata=verbose",
+      },
+    });
 
-      const data = await response.json();
-
-      allResults = [...allResults, ...data.d.results];
-
-      nextUrl = data.d.__next || null;
+    if (!response.ok) {
+      throw new Error(`خطای HTTP: ${response.status}`);
     }
 
-    return allResults;
+    const data = await response.json();
+
+    const result =
+      data.d.results && data.d.results.length > 0 ? data.d.results[0] : null;
+
+    return result;
   } catch (err) {
-    console.error("خطا در دریافت آیتم‌ها:", err);
-    return [];
+    console.error("خطا در دریافت آیتم:", err);
+    return null;
   }
 }
 
@@ -224,6 +235,36 @@ export async function getAllDetailCustomerFactorList(
 ): Promise<IDetailCustomerFactorListItem | null> {
   const listGuid = "C6636CFE-76E0-4E0F-B65F-C14893D3970E";
   const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=parent_ditaile_code eq '${parentDetailCode}'`;
+
+  try {
+    const response = await fetch(nextUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json;odata=verbose",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`خطای HTTP: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const result =
+      data.d.results && data.d.results.length > 0 ? data.d.results[0] : null;
+
+    return result;
+  } catch (err) {
+    console.error("خطا در دریافت آیتم:", err);
+    return null;
+  }
+}
+
+export async function getAllSubProductionPlanList(
+  shomareradiffactor: string
+): Promise<any | null> {
+  const listGuid = "0F8D6219-AA01-4645-B8DE-25B796AB9C5F";
+  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomareradiffactor eq '${shomareradiffactor}'`;
 
   try {
     const response = await fetch(nextUrl, {

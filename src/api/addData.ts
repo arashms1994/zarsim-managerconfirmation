@@ -2,6 +2,11 @@ import { BASE_URL } from "./base";
 import { getDigest } from "../lib/getDigest";
 import { Bounce, toast } from "react-toastify";
 import { parseProductTitle } from "../lib/parseTitle";
+import {
+  getBastebandiList,
+  getAllBasteBandiShodeList,
+  getAllPishraftMaraheleTolidList,
+} from "./getData";
 
 const updateChangePreInvoiceRowStatus = async (
   title: string,
@@ -328,6 +333,266 @@ const updateOnlyGoodscode = async (itemId: number, goodscode: string) => {
   }
 };
 
+const updateBastebandiFields = async (
+  shomarefactor: string,
+  rowData: {
+    printTitle: string;
+    productTittle: string;
+    colorFinalCode: string;
+    colorTitle: string;
+    packingTitle: string;
+    preInvoiceProductTitle: string;
+    finalGenerationCode: string;
+    finalProductCode: string;
+    packingCode: string;
+    productCode: string;
+    coverColor: string;
+    colorString: string;
+    amount: string;
+    productionAmount: string;
+    price: string;
+    productCatgory: string;
+    packingType: string;
+    packingMaterial: string;
+    packingSize: string;
+    packingM: string;
+  }
+) => {
+  try {
+    const existingItem = await getBastebandiList(shomarefactor);
+
+    if (!existingItem) {
+      console.log(
+        `⚠️ ردیف با shomarefactor ${shomarefactor} در Bastebandi یافت نشد`
+      );
+      return;
+    }
+
+    const listGuid = "9B482D2A-67F6-451B-BBA1-A47E5ABD95C5";
+    const itemType = "SP.Data.BastebandiListItem";
+    const digest = await getDigest();
+
+    const updateResponse = await fetch(
+      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${existingItem.Id})`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json;odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          "X-RequestDigest": digest,
+          "X-HTTP-Method": "MERGE",
+          "IF-MATCH": "*",
+        },
+        body: JSON.stringify({
+          __metadata: { type: itemType },
+          rang: rowData.colorString,
+          chap: rowData.printTitle,
+          metraj: rowData.amount,
+          typebaste: rowData.packingType,
+          jensebaste: rowData.packingMaterial,
+          sizebaste: rowData.packingSize,
+          shomaretarh: rowData.productCode,
+          codemahsol: rowData.productTittle,
+          rangrokesh: rowData.coverColor,
+          bastebandie: rowData.packingTitle,
+          name: rowData.productTittle,
+        }),
+      }
+    );
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      throw new Error(
+        `خطای HTTP در آپدیت Bastebandi: ${updateResponse.status} - ${errorText}`
+      );
+    }
+  } catch (err) {
+    console.error("❌ خطا در آپدیت Bastebandi:", err);
+    throw err;
+  }
+};
+
+/**
+ * آپدیت لیست PishraftMarahelTolid با اطلاعات جدید
+ * @param shomaresefaresh - شماره سفارش
+ * @param rowData - داده‌های جدید
+ */
+const updatePishraftMarahelTolidFields = async (
+  shomaresefaresh: string,
+  rowData: {
+    printTitle: string;
+    productTittle: string;
+    colorFinalCode: string;
+    colorTitle: string;
+    packingTitle: string;
+    preInvoiceProductTitle: string;
+    finalGenerationCode: string;
+    finalProductCode: string;
+    packingCode: string;
+    productCode: string;
+    coverColor: string;
+    colorString: string;
+    amount: string;
+    productionAmount: string;
+    price: string;
+    productCatgory: string;
+    packingType: string;
+    packingMaterial: string;
+    packingSize: string;
+    packingM: string;
+  }
+) => {
+  try {
+    // 1. بررسی وجود ردیف در PishraftMarahelTolid
+    const existingItem = await getAllPishraftMaraheleTolidList(shomaresefaresh);
+
+    if (!existingItem) {
+      console.log(
+        `⚠️ ردیف با shomaresefaresh ${shomaresefaresh} در PishraftMarahelTolid یافت نشد`
+      );
+      return;
+    }
+
+    const listGuid = "66184F05-6D40-473D-AE54-7E0C029BDEB2";
+    const itemType = "SP.Data.PishraftMarahelTolidItem";
+    const digest = await getDigest();
+
+    // تجزیه productTitle برای استخراج فیلدهای جدید
+    const parsedProduct = parseProductTitle(rowData.productTittle);
+
+    // 2. آپدیت فیلدها بر اساس mapping جدید
+    const updateResponse = await fetch(
+      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${existingItem.Id})`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json;odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          "X-RequestDigest": digest,
+          "X-HTTP-Method": "MERGE",
+          "IF-MATCH": "*",
+        },
+        body: JSON.stringify({
+          __metadata: { type: itemType },
+          matnechap: rowData.printTitle,
+          rangrokesh: rowData.coverColor,
+          typename: rowData.productCatgory,
+          bastebandi: rowData.packingTitle,
+          codemahsol: rowData.productTittle,
+          shomaretarh: rowData.productCode,
+          size: parsedProduct.ProductSize,
+          rangbandi: rowData.colorString,
+        }),
+      }
+    );
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      throw new Error(
+        `خطای HTTP در آپدیت PishraftMarahelTolid: ${updateResponse.status} - ${errorText}`
+      );
+    }
+
+    console.log(
+      `✅ PishraftMarahelTolid با shomaresefaresh ${shomaresefaresh} با موفقیت آپدیت شد`
+    );
+  } catch (err) {
+    console.error("❌ خطا در آپدیت PishraftMarahelTolid:", err);
+    throw err;
+  }
+};
+
+const updateBastebandiShodeFields = async (
+  shomarefactor: string,
+  rowData: {
+    printTitle: string;
+    productTittle: string;
+    colorFinalCode: string;
+    colorTitle: string;
+    packingTitle: string;
+    preInvoiceProductTitle: string;
+    finalGenerationCode: string;
+    finalProductCode: string;
+    packingCode: string;
+    productCode: string;
+    coverColor: string;
+    colorString: string;
+    amount: string;
+    productionAmount: string;
+    price: string;
+    productCatgory: string;
+    packingType: string;
+    packingMaterial: string;
+    packingSize: string;
+    packingM: string;
+  }
+) => {
+  try {
+    const existingItem = await getAllBasteBandiShodeList(shomarefactor);
+
+    if (!existingItem) {
+      console.log(
+        `⚠️ ردیف با shomarefactor ${shomarefactor} در BastebandiShode یافت نشد`
+      );
+      return;
+    }
+
+    const listGuid = "1788C718-E3CA-461C-AF37-23B1C970F9DC";
+    const itemType = "SP.Data.BastebandishodeListItem";
+    const digest = await getDigest();
+
+    const parsedProduct = parseProductTitle(rowData.productTittle);
+
+    const updateResponse = await fetch(
+      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${existingItem.Id})`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json;odata=verbose",
+          "Content-Type": "application/json;odata=verbose",
+          "X-RequestDigest": digest,
+          "X-HTTP-Method": "MERGE",
+          "IF-MATCH": "*",
+        },
+        body: JSON.stringify({
+          __metadata: { type: itemType },
+          rang: rowData.colorString,
+          typebaste: rowData.packingType,
+          jensebaste: rowData.packingSize,
+          sizebaste: rowData.packingMaterial,
+          metrebaste: rowData.packingM,
+          rangrokesh: rowData.coverColor,
+          shomaretarh: rowData.productCode,
+          codemahsol: rowData.productTittle,
+          bastebandie: rowData.packingTitle,
+          goodscode: rowData.finalProductCode,
+          packing_name: rowData.packingTitle,
+          Size: parsedProduct.ProductSize,
+          sharhmahsolemoshtari: rowData.preInvoiceProductTitle,
+          code_15r: rowData.finalGenerationCode,
+          packing_code: rowData.packingCode,
+          coler_final_code: rowData.colorFinalCode,
+          colertitle: rowData.colorTitle,
+        }),
+      }
+    );
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      throw new Error(
+        `خطای HTTP در آپدیت BastebandiShode: ${updateResponse.status} - ${errorText}`
+      );
+    }
+
+    console.log(
+      `✅ BastebandiShode با shomarefactor ${shomarefactor} با موفقیت آپدیت شد`
+    );
+  } catch (err) {
+    console.error("❌ خطا در آپدیت BastebandiShode:", err);
+    throw err;
+  }
+};
+
 const updateAllDetailCustomerFactorFields = async (
   itemId: number,
   rowData: {
@@ -414,13 +679,132 @@ const updateAllDetailCustomerFactorFields = async (
 const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
   Title: string;
   finalProductCode: string;
+  shomarefactor?: string;
+  shomaresefaresh?: string;
+  printTitle: string;
+  productTittle: string;
+  colorFinalCode: string;
+  colorTitle: string;
+  packingTitle: string;
+  preInvoiceProductTitle: string;
+  finalGenerationCode: string;
+  packingCode: string;
+  productCode: string;
+  coverColor: string;
+  colorString: string;
+  amount: string;
+  productionAmount: string;
+  price: string;
+  productCatgory: string;
+  packingType: string;
+  packingMaterial: string;
+  packingSize: string;
+  packingM: string;
 }) => {
   try {
+    // 1. ایجاد backup در OldList
     const targetItem = await findDetailCustomerFactorItem(rowData.Title);
+    await createNewOldListItem(targetItem);
 
+    // 2. آپدیت DetailCustomerFactor (فقط goodscode)
     await updateOnlyGoodscode(targetItem.Id, rowData.finalProductCode);
 
-    await createNewOldListItem(targetItem);
+    // 3. آپدیت Bastebandi اگر shomarefactor موجود باشه
+    if (rowData.shomarefactor) {
+      console.log(
+        `🔄 شروع آپدیت Bastebandi برای shomarefactor: ${rowData.shomarefactor}`
+      );
+      await updateBastebandiFields(rowData.shomarefactor, {
+        printTitle: rowData.printTitle,
+        productTittle: rowData.productTittle,
+        colorFinalCode: rowData.colorFinalCode,
+        colorTitle: rowData.colorTitle,
+        packingTitle: rowData.packingTitle,
+        preInvoiceProductTitle: rowData.preInvoiceProductTitle,
+        finalGenerationCode: rowData.finalGenerationCode,
+        finalProductCode: rowData.finalProductCode,
+        packingCode: rowData.packingCode,
+        productCode: rowData.productCode,
+        coverColor: rowData.coverColor,
+        colorString: rowData.colorString,
+        amount: rowData.amount,
+        productionAmount: rowData.productionAmount,
+        price: rowData.price,
+        productCatgory: rowData.productCatgory,
+        packingType: rowData.packingType,
+        packingMaterial: rowData.packingMaterial,
+        packingSize: rowData.packingSize,
+        packingM: rowData.packingM,
+      });
+    } else {
+      console.log("⚠️ shomarefactor موجود نیست، Bastebandi آپدیت نمی‌شود");
+    }
+
+    // 4. آپدیت BastebandiShode اگر shomarefactor موجود باشه
+    if (rowData.shomarefactor) {
+      console.log(
+        `🔄 شروع آپدیت BastebandiShode برای shomarefactor: ${rowData.shomarefactor}`
+      );
+      await updateBastebandiShodeFields(rowData.shomarefactor, {
+        printTitle: rowData.printTitle,
+        productTittle: rowData.productTittle,
+        colorFinalCode: rowData.colorFinalCode,
+        colorTitle: rowData.colorTitle,
+        packingTitle: rowData.packingTitle,
+        preInvoiceProductTitle: rowData.preInvoiceProductTitle,
+        finalGenerationCode: rowData.finalGenerationCode,
+        finalProductCode: rowData.finalProductCode,
+        packingCode: rowData.packingCode,
+        productCode: rowData.productCode,
+        coverColor: rowData.coverColor,
+        colorString: rowData.colorString,
+        amount: rowData.amount,
+        productionAmount: rowData.productionAmount,
+        price: rowData.price,
+        productCatgory: rowData.productCatgory,
+        packingType: rowData.packingType,
+        packingMaterial: rowData.packingMaterial,
+        packingSize: rowData.packingSize,
+        packingM: rowData.packingM,
+      });
+    } else {
+      console.log("⚠️ shomarefactor موجود نیست، BastebandiShode آپدیت نمی‌شود");
+    }
+
+    // 5. آپدیت PishraftMarahelTolid اگر shomaresefaresh موجود باشه
+    if (rowData.shomaresefaresh) {
+      console.log(
+        `🔄 شروع آپدیت PishraftMarahelTolid برای shomaresefaresh: ${rowData.shomaresefaresh}`
+      );
+      await updatePishraftMarahelTolidFields(rowData.shomaresefaresh, {
+        printTitle: rowData.printTitle,
+        productTittle: rowData.productTittle,
+        colorFinalCode: rowData.colorFinalCode,
+        colorTitle: rowData.colorTitle,
+        packingTitle: rowData.packingTitle,
+        preInvoiceProductTitle: rowData.preInvoiceProductTitle,
+        finalGenerationCode: rowData.finalGenerationCode,
+        finalProductCode: rowData.finalProductCode,
+        packingCode: rowData.packingCode,
+        productCode: rowData.productCode,
+        coverColor: rowData.coverColor,
+        colorString: rowData.colorString,
+        amount: rowData.amount,
+        productionAmount: rowData.productionAmount,
+        price: rowData.price,
+        productCatgory: rowData.productCatgory,
+        packingType: rowData.packingType,
+        packingMaterial: rowData.packingMaterial,
+        packingSize: rowData.packingSize,
+        packingM: rowData.packingM,
+      });
+    } else {
+      console.log(
+        "⚠️ shomaresefaresh موجود نیست، PishraftMarahelTolid آپدیت نمی‌شود"
+      );
+    }
+
+    console.log("✅ آپدیت برای STW >= 4 با موفقیت انجام شد");
   } catch (err) {
     console.error("❌ خطا در آپدیت برای STW >= 4:", err);
     throw err;
@@ -449,6 +833,7 @@ const handleApprovalForSTWLessThan4 = async (rowData: {
   packingMaterial: string;
   packingSize: string;
   packingM: string;
+  shomarefactor?: string;
 }) => {
   try {
     const targetItem = await findDetailCustomerFactorItem(rowData.Title);
@@ -475,6 +860,14 @@ const handleApprovalForSTWLessThan4 = async (rowData: {
       packingSize: rowData.packingSize,
       packingM: rowData.packingM,
     });
+
+    if (rowData.shomarefactor) {
+      console.log(
+        `🔄 شروع آپدیت Bastebandi برای shomarefactor: ${rowData.shomarefactor}`
+      );
+    } else {
+      console.log("⚠️ shomarefactor موجود نیست، Bastebandi آپدیت نمی‌شود");
+    }
   } catch (err) {
     console.error("❌ خطا در آپدیت کامل برای STW < 4:", err);
     throw err;
@@ -504,6 +897,8 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
   packingMaterial: string;
   packingSize: string;
   packingM: string;
+  shomarefactor?: string;
+  shomaresefaresh?: string;
 }) => {
   try {
     const stwValue = parseInt(rowData.STW);
@@ -512,6 +907,27 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
       await handleApprovalForSTWGreaterOrEqual4({
         Title: rowData.Title,
         finalProductCode: rowData.finalProductCode,
+        shomarefactor: rowData.shomarefactor,
+        shomaresefaresh: rowData.shomaresefaresh,
+        printTitle: rowData.printTitle,
+        productTittle: rowData.productTittle,
+        colorFinalCode: rowData.colorFinalCode,
+        colorTitle: rowData.colorTitle,
+        packingTitle: rowData.packingTitle,
+        preInvoiceProductTitle: rowData.preInvoiceProductTitle,
+        finalGenerationCode: rowData.finalGenerationCode,
+        packingCode: rowData.packingCode,
+        productCode: rowData.productCode,
+        coverColor: rowData.coverColor,
+        colorString: rowData.colorString,
+        amount: rowData.amount,
+        productionAmount: rowData.productionAmount,
+        price: rowData.price,
+        productCatgory: rowData.productCatgory,
+        packingType: rowData.packingType,
+        packingMaterial: rowData.packingMaterial,
+        packingSize: rowData.packingSize,
+        packingM: rowData.packingM,
       });
     } else {
       await handleApprovalForSTWLessThan4(rowData);

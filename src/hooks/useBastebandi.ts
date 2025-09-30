@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllBastebandiList } from "../api/getData";
+import { getBastebandiList } from "../api/getData";
 import type { IBastebandiListItem } from "../types/type";
 
-export const useBastebandi = () => {
-  return useQuery<IBastebandiListItem[], Error>({
-    queryKey: ["bastebandi"],
-    queryFn: () => getAllBastebandiList(),
+export const useBastebandi = (shomarefactor: string) => {
+  return useQuery<IBastebandiListItem | null, Error>({
+    queryKey: ["bastebandi", shomarefactor],
+    queryFn: () => getBastebandiList(shomarefactor),
     staleTime: 2000,
     retry: 5,
   });

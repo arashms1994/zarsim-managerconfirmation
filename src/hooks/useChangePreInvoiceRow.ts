@@ -7,6 +7,6 @@ export const useChangePreInvoiceRow = () => {
     queryKey: ["changePreInvoiceRowHistory"],
     queryFn: () => getAllChangePreInvoiceRowHistoryList(),
     staleTime: 2000,
-    retry: 5,
+    retry: 20,
   });
 };
