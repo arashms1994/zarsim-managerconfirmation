@@ -6,6 +6,7 @@ import type {
   IDetailCustomerFactorListItem,
   IOrderProductsListItem,
   IPishraftMarahelTolidItem,
+  IProductionPlanListItem,
 } from "../types/type";
 
 export async function getAllChangePreInvoiceRowHistoryList(): Promise<
@@ -262,7 +263,7 @@ export async function getAllDetailCustomerFactorList(
 
 export async function getAllSubProductionPlanList(
   shomareradiffactor: string
-): Promise<any | null> {
+): Promise<IProductionPlanListItem | null> {
   const listGuid = "0F8D6219-AA01-4645-B8DE-25B796AB9C5F";
   const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomareradiffactor eq '${shomareradiffactor}'`;
 

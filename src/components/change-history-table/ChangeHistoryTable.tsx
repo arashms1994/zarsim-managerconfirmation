@@ -33,6 +33,7 @@ import { getStatusLabel } from "../../lib/getStatusLabel";
 import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
 import { Modal } from "../modal/Modal";
 import { ActionsCell } from "../action-colomn/ActionCell";
+import { useSubProductionPlan } from "../../hooks/useSubProductionPlan";
 
 const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
@@ -100,6 +101,7 @@ const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
 
 export function ChangeHistoryTable() {
   const { data: preInvoiceRows = [], isLoading } = useChangePreInvoiceRow();
+  const { data: subproduction = [] } = useSubProductionPlan("4-70579-2-1");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -147,6 +149,8 @@ export function ChangeHistoryTable() {
       </div>
     );
   }
+
+  console.log("suuuuuuuuuuub", subproduction);
 
   return (
     <div className="w-full">
