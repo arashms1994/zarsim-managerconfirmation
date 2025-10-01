@@ -173,7 +173,7 @@ export async function getAllBasteBandiShodeList(
 
 export async function getAllPishraftMaraheleTolidList(
   shomaresefaresh: string
-): Promise<IPishraftMarahelTolidItem | null> {
+): Promise<IPishraftMarahelTolidItem[]> {
   const listGuid = "66184F05-6D40-473D-AE54-7E0C029BDEB2";
   const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomaresefaresh eq '${shomaresefaresh}'`;
 
@@ -191,13 +191,12 @@ export async function getAllPishraftMaraheleTolidList(
 
     const data = await response.json();
 
-    const result =
-      data.d.results && data.d.results.length > 0 ? data.d.results[0] : null;
+    const result = data.d.results || [];
 
     return result;
   } catch (err) {
-    console.error("خطا در دریافت آیتم:", err);
-    return null;
+    console.error("خطا در دریافت آیتم‌ها:", err);
+    return [];
   }
 }
 
@@ -263,7 +262,7 @@ export async function getAllDetailCustomerFactorList(
 
 export async function getAllSubProductionPlanList(
   shomareradiffactor: string
-): Promise<IProductionPlanListItem | null> {
+): Promise<IProductionPlanListItem[]> {
   const listGuid = "0F8D6219-AA01-4645-B8DE-25B796AB9C5F";
   const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomareradiffactor eq '${shomareradiffactor}'`;
 
@@ -281,12 +280,11 @@ export async function getAllSubProductionPlanList(
 
     const data = await response.json();
 
-    const result =
-      data.d.results && data.d.results.length > 0 ? data.d.results[0] : null;
+    const result = data.d.results || [];
 
     return result;
   } catch (err) {
-    console.error("خطا در دریافت آیتم:", err);
-    return null;
+    console.error("خطا در دریافت آیتم‌ها:", err);
+    return [];
   }
 }

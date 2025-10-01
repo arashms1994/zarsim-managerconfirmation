@@ -6,6 +6,7 @@ import {
   getBastebandiList,
   getAllBasteBandiShodeList,
   getAllPishraftMaraheleTolidList,
+  getAllSubProductionPlanList,
 } from "./getData";
 
 const updateChangePreInvoiceRowStatus = async (
@@ -387,7 +388,7 @@ const updateBastebandiFields = async (
           __metadata: { type: itemType },
           rang: rowData.colorString,
           chap: rowData.printTitle,
-          metraj: rowData.amount,
+          metraj: rowData.productionAmount,
           typebaste: rowData.packingType,
           jensebaste: rowData.packingMaterial,
           sizebaste: rowData.packingSize,
@@ -438,9 +439,11 @@ const updatePishraftMarahelTolidFields = async (
   }
 ) => {
   try {
-    const existingItem = await getAllPishraftMaraheleTolidList(shomaresefaresh);
+    const existingItems = await getAllPishraftMaraheleTolidList(
+      shomaresefaresh
+    );
 
-    if (!existingItem) {
+    if (!existingItems || existingItems.length === 0) {
       console.log(
         `⚠️ ردیف با shomaresefaresh ${shomaresefaresh} در PishraftMarahelTolid یافت نشد`
       );
@@ -453,43 +456,130 @@ const updatePishraftMarahelTolidFields = async (
 
     const parsedProduct = parseProductTitle(rowData.productTittle);
 
-    const updateResponse = await fetch(
-      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${existingItem.Id})`,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json;odata=verbose",
-          "Content-Type": "application/json;odata=verbose",
-          "X-RequestDigest": digest,
-          "X-HTTP-Method": "MERGE",
-          "IF-MATCH": "*",
-        },
-        body: JSON.stringify({
-          __metadata: { type: itemType },
-          matnechap: rowData.printTitle,
-          rangrokesh: rowData.coverColor,
-          typename: rowData.productCatgory,
-          bastebandi: rowData.packingTitle,
-          codemahsol: rowData.productTittle,
-          shomaretarh: rowData.productCode,
-          size: parsedProduct.ProductSize,
-          rangbandi: rowData.colorString,
-        }),
-      }
-    );
+    for (const item of existingItems) {
+      const updateResponse = await fetch(
+        `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${item.Id})`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbose",
+            "X-RequestDigest": digest,
+            "X-HTTP-Method": "MERGE",
+            "IF-MATCH": "*",
+          },
+          body: JSON.stringify({
+            __metadata: { type: itemType },
+            matnechap: rowData.printTitle,
+            rangrokesh: rowData.coverColor,
+            typename: rowData.productCatgory,
+            bastebandi: rowData.packingTitle,
+            codemahsol: rowData.productTittle,
+            shomaretarh: rowData.productCode,
+            size: parsedProduct.ProductSize,
+            rangbandi: rowData.colorString,
+            tolidbarnamei: rowData.productionAmount,
+          }),
+        }
+      );
 
-    if (!updateResponse.ok) {
-      const errorText = await updateResponse.text();
-      throw new Error(
-        `خطای HTTP در آپدیت PishraftMarahelTolid: ${updateResponse.status} - ${errorText}`
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text();
+        throw new Error(
+          `خطای HTTP در آپدیت PishraftMarahelTolid (ID: ${item.Id}): ${updateResponse.status} - ${errorText}`
+        );
+      }
+
+      console.log(
+        `✅ PishraftMarahelTolid با ID ${item.Id} با موفقیت آپدیت شد`
       );
     }
 
     console.log(
-      `✅ PishraftMarahelTolid با shomaresefaresh ${shomaresefaresh} با موفقیت آپدیت شد`
+      `✅ ${existingItems.length} ردیف PishraftMarahelTolid با shomaresefaresh ${shomaresefaresh} با موفقیت آپدیت شد`
     );
   } catch (err) {
     console.error("❌ خطا در آپدیت PishraftMarahelTolid:", err);
+    throw err;
+  }
+};
+
+const updateSubProductionPlanFields = async (
+  shomareradiffactor: string,
+  rowData: {
+    printTitle: string;
+    productTittle: string;
+    colorFinalCode: string;
+    colorTitle: string;
+    packingTitle: string;
+    preInvoiceProductTitle: string;
+    finalGenerationCode: string;
+    finalProductCode: string;
+    packingCode: string;
+    productCode: string;
+    coverColor: string;
+    colorString: string;
+    amount: string;
+    productionAmount: string;
+    price: string;
+    productCatgory: string;
+    packingType: string;
+    packingMaterial: string;
+    packingSize: string;
+    packingM: string;
+  }
+) => {
+  try {
+    const existingItems = await getAllSubProductionPlanList(shomareradiffactor);
+
+    if (!existingItems || existingItems.length === 0) {
+      console.log(
+        `⚠️ ردیف با shomareradiffactor ${shomareradiffactor} در SubProductionPlan یافت نشد`
+      );
+      return;
+    }
+
+    const listGuid = "0F8D6219-AA01-4645-B8DE-25B796AB9C5F";
+    const itemType = "SP.Data.SubproductionplanListItem";
+    const digest = await getDigest();
+
+    for (const item of existingItems) {
+      const updateResponse = await fetch(
+        `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${item.Id})`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json;odata=verbose",
+            "Content-Type": "application/json;odata=verbose",
+            "X-RequestDigest": digest,
+            "X-HTTP-Method": "MERGE",
+            "IF-MATCH": "*",
+          },
+          body: JSON.stringify({
+            __metadata: { type: itemType },
+            meghdarkolesefaresh: rowData.productionAmount,
+            bastebandi: rowData.packingTitle,
+            rangrokesh: rowData.coverColor,
+            matnechap: rowData.printTitle,
+          }),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text();
+        throw new Error(
+          `خطای HTTP در آپدیت SubProductionPlan (ID: ${item.Id}): ${updateResponse.status} - ${errorText}`
+        );
+      }
+
+      console.log(`✅ SubProductionPlan با ID ${item.Id} با موفقیت آپدیت شد`);
+    }
+
+    console.log(
+      `✅ ${existingItems.length} ردیف SubProductionPlan با shomareradiffactor ${shomareradiffactor} با موفقیت آپدیت شد`
+    );
+  } catch (err) {
+    console.error("❌ خطا در آپدیت SubProductionPlan:", err);
     throw err;
   }
 };
@@ -565,6 +655,7 @@ const updateBastebandiShodeFields = async (
           packing_code: rowData.packingCode,
           coler_final_code: rowData.colorFinalCode,
           colertitle: rowData.colorTitle,
+          metrajtahvili: rowData.productionAmount,
         }),
       }
     );
@@ -673,6 +764,7 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
   finalProductCode: string;
   shomarefactor?: string;
   shomaresefaresh?: string;
+  shomareradiffactor?: string;
   printTitle: string;
   productTittle: string;
   colorFinalCode: string;
@@ -694,14 +786,11 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
   packingM: string;
 }) => {
   try {
-    // 1. ایجاد backup در OldList
     const targetItem = await findDetailCustomerFactorItem(rowData.Title);
     await createNewOldListItem(targetItem);
 
-    // 2. آپدیت DetailCustomerFactor (فقط goodscode)
     await updateOnlyGoodscode(targetItem.Id, rowData.finalProductCode);
 
-    // 3. آپدیت Bastebandi اگر shomarefactor موجود باشه
     if (rowData.shomarefactor) {
       console.log(
         `🔄 شروع آپدیت Bastebandi برای shomarefactor: ${rowData.shomarefactor}`
@@ -732,7 +821,6 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
       console.log("⚠️ shomarefactor موجود نیست، Bastebandi آپدیت نمی‌شود");
     }
 
-    // 4. آپدیت BastebandiShode اگر shomarefactor موجود باشه
     if (rowData.shomarefactor) {
       console.log(
         `🔄 شروع آپدیت BastebandiShode برای shomarefactor: ${rowData.shomarefactor}`
@@ -763,7 +851,6 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
       console.log("⚠️ shomarefactor موجود نیست، BastebandiShode آپدیت نمی‌شود");
     }
 
-    // 5. آپدیت PishraftMarahelTolid اگر shomaresefaresh موجود باشه
     if (rowData.shomaresefaresh) {
       console.log(
         `🔄 شروع آپدیت PishraftMarahelTolid برای shomaresefaresh: ${rowData.shomaresefaresh}`
@@ -793,6 +880,38 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
     } else {
       console.log(
         "⚠️ shomaresefaresh موجود نیست، PishraftMarahelTolid آپدیت نمی‌شود"
+      );
+    }
+
+    if (rowData.shomareradiffactor) {
+      console.log(
+        `🔄 شروع آپدیت SubProductionPlan برای shomareradiffactor: ${rowData.shomareradiffactor}`
+      );
+      await updateSubProductionPlanFields(rowData.shomareradiffactor, {
+        printTitle: rowData.printTitle,
+        productTittle: rowData.productTittle,
+        colorFinalCode: rowData.colorFinalCode,
+        colorTitle: rowData.colorTitle,
+        packingTitle: rowData.packingTitle,
+        preInvoiceProductTitle: rowData.preInvoiceProductTitle,
+        finalGenerationCode: rowData.finalGenerationCode,
+        finalProductCode: rowData.finalProductCode,
+        packingCode: rowData.packingCode,
+        productCode: rowData.productCode,
+        coverColor: rowData.coverColor,
+        colorString: rowData.colorString,
+        amount: rowData.amount,
+        productionAmount: rowData.productionAmount,
+        price: rowData.price,
+        productCatgory: rowData.productCatgory,
+        packingType: rowData.packingType,
+        packingMaterial: rowData.packingMaterial,
+        packingSize: rowData.packingSize,
+        packingM: rowData.packingM,
+      });
+    } else {
+      console.log(
+        "⚠️ shomareradiffactor موجود نیست، SubProductionPlan آپدیت نمی‌شود"
       );
     }
 
@@ -891,6 +1010,7 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
   packingM: string;
   shomarefactor?: string;
   shomaresefaresh?: string;
+  shomareradiffactor?: string;
 }) => {
   try {
     const stwValue = parseInt(rowData.STW);
@@ -901,6 +1021,7 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
         finalProductCode: rowData.finalProductCode,
         shomarefactor: rowData.shomarefactor,
         shomaresefaresh: rowData.shomaresefaresh,
+        shomareradiffactor: rowData.shomareradiffactor,
         printTitle: rowData.printTitle,
         productTittle: rowData.productTittle,
         colorFinalCode: rowData.colorFinalCode,

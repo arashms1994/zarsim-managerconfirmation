@@ -42,8 +42,9 @@ export const ActionsCell: React.FC<{
         packingMaterial: rowItem.packingMaterial || "",
         packingSize: rowItem.packingSize || "",
         packingM: rowItem.packingM || "",
-        shomarefactor: rowItem.orderNumber || "", // اضافه کردن shomarefactor
-        shomaresefaresh: rowItem.orderNumber || "", // اضافه کردن shomaresefaresh
+        shomarefactor: rowItem.orderNumber || "",
+        shomaresefaresh: rowItem.orderNumber || "",
+        shomareradiffactor: rowItem.Title || "",
       });
 
       await queryClient.invalidateQueries({

@@ -33,9 +33,9 @@ export const Modal = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="w-full flex items-center justify-center flex-col gap-3 bg-white min-w-[750px] h-[650px] p-6 rounded-lg shadow-lg max-w-md relative scroll-auto">
         <div className="bg-blue-300 flex items-center justify-center rounded-lg p-4">
-          <p className="text-slate-700 text-2xl font-semibold">
+          <span className="text-slate-700 text-2xl font-semibold">
             جزئیات ردیف سفارش {rowData.Title}
-          </p>
+          </span>
         </div>
 
         <div className="w-full space-y-2 bg-red-200 text-white p-3 rounded-lg mb-4 flex flex-col items-center justify-around gap-2">
