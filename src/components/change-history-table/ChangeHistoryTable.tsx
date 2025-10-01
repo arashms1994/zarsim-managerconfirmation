@@ -154,24 +154,26 @@ export function ChangeHistoryTable() {
     <div className="w-full">
       <div className="w-full flex justify-between items-center mb-3">
         <div className="bg-blue-300 flex items-center justify-center rounded-lg p-4 max-w-fit w-full">
-        <span className="text-slate-700 text-2xl font-semibold">
-          مدیریت اصلاحات پیش‌فاکتورها
-        </span>
-      </div>
+          <span className="text-slate-700 text-2xl font-semibold">
+            مدیریت اصلاحات پیش‌فاکتورها
+          </span>
+        </div>
 
-      <div className="flex items-center justify-start gap-2 w-full max-w-[550px]">
-        <span className="text-lg font font-medium">جست و جو در جدول:</span>
-        <Input
-          placeholder="جست‌وجو در همه ستون‌ها ..."
-          value={globalFilter ?? ""}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-        />
-      </div>
+        <div className="flex items-center justify-start gap-2 w-full max-w-[500px]">
+          <div className="bg-red-300 rounded-lg max-w-fit p-1">
+            <span className="text-lg font font-medium">جست و جو:</span>
+          </div>
+          <Input
+            placeholder="جست‌وجو در همه ستون‌ها ..."
+            value={globalFilter ?? ""}
+            onChange={(event) => setGlobalFilter(event.target.value)}
+          />
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-md border my-3">
         <Table>
-          <TableHeader className="bg-slate-300">
+          <TableHeader className="bg-green-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
