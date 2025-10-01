@@ -29,11 +29,9 @@ import {
 } from "../ui/table";
 import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
 import moment from "jalali-moment";
-import { getStatusLabel } from "../../lib/getStatusLabel";
 import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
 import { Modal } from "../modal/Modal";
 import { ActionsCell } from "../action-colomn/ActionCell";
-import { useSubProductionPlan } from "../../hooks/useSubProductionPlan";
 
 const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
@@ -60,11 +58,9 @@ const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
     enableGlobalFilter: true,
   },
   {
-    accessorKey: "status",
-    header: "وضعیت",
-    cell: ({ row }) => (
-      <div>{getStatusLabel(row.getValue("status")) || "-"}</div>
-    ),
+    accessorKey: "customerName",
+    header: "نام مشتری",
+    cell: ({ row }) => <div>{row.getValue("customerName") || "-"}</div>,
     enableGlobalFilter: true,
   },
   {
@@ -101,7 +97,6 @@ const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
 
 export function ChangeHistoryTable() {
   const { data: preInvoiceRows = [], isLoading } = useChangePreInvoiceRow();
-  const { data: subproduction = [] } = useSubProductionPlan("4-70579-2-1");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -124,6 +119,11 @@ export function ChangeHistoryTable() {
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: "includesString",
+    initialState: {
+      pagination: {
+        pageSize: 50,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -150,16 +150,24 @@ export function ChangeHistoryTable() {
     );
   }
 
-  console.log("suuuuuuuuuuub", subproduction);
-
   return (
     <div className="w-full">
-      <Input
-        placeholder="جست‌وجو در همه ستون‌ها ..."
-        value={globalFilter ?? ""}
-        onChange={(event) => setGlobalFilter(event.target.value)}
-        className="max-w-sm px-2 mb-3 border-2 rounded-xl text-base"
-      />
+      <div className="w-full flex justify-between items-center mb-3">
+        <div className="bg-blue-300 flex items-center justify-center rounded-lg p-4 max-w-fit w-full">
+        <span className="text-slate-700 text-2xl font-semibold">
+          مدیریت اصلاحات پیش‌فاکتورها
+        </span>
+      </div>
+
+      <div className="flex items-center justify-start gap-2 w-full">
+        <span className="text-lg font font-medium">جست و جو در جدول:</span>
+        <Input
+          placeholder="جست‌وجو در همه ستون‌ها ..."
+          value={globalFilter ?? ""}
+          onChange={(event) => setGlobalFilter(event.target.value)}
+        />
+      </div>
+      </div>
 
       <div className="overflow-hidden rounded-md border my-3">
         <Table>
@@ -211,22 +219,50 @@ export function ChangeHistoryTable() {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2 flex items-center justify-center">
+
+      <div className="flex items-center justify-between py-4">
+        <div className="text-sm text-gray-600">
+          نمایش{" "}
+          {table.getState().pagination.pageIndex *
+            table.getState().pagination.pageSize +
+            1}{" "}
+          تا{" "}
+          {Math.min(
+            (table.getState().pagination.pageIndex + 1) *
+              table.getState().pagination.pageSize,
+            table.getFilteredRowModel().rows.length
+          )}{" "}
+          از {table.getFilteredRowModel().rows.length} رکورد
+        </div>
+
+        <div className="flex items-center space-x-2">
           <div
-            className="flex items-center justify-center p-2 rounded-full hover:bg-slate-300 transition-all duration-300"
-            onClick={() => table.nextPage()}
+            className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${
+              !table.getCanPreviousPage()
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-slate-300 cursor-pointer"
+            }`}
+            onClick={() => table.getCanPreviousPage() && table.previousPage()}
           >
-            <CircleChevronRight color="black" />
+            <CircleChevronRight
+              color={table.getCanPreviousPage() ? "black" : "gray"}
+            />
           </div>
           <div
-            className="flex items-center justify-center p-2 rounded-full hover:bg-slate-300 transition-all duration-300"
-            onClick={() => table.previousPage()}
+            className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${
+              !table.getCanNextPage()
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-slate-300 cursor-pointer"
+            }`}
+            onClick={() => table.getCanNextPage() && table.nextPage()}
           >
-            <CircleChevronLeft color="black" />
+            <CircleChevronLeft
+              color={table.getCanNextPage() ? "black" : "gray"}
+            />
           </div>
         </div>
       </div>
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
