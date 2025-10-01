@@ -7,6 +7,5 @@ export const useOrderProducts = () => {
     queryKey: ["orderProducts"],
     queryFn: () => getAllOrderProductsList(),
     staleTime: 2000,
-    retry: 5,
   });
 };

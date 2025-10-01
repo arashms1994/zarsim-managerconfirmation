@@ -7,6 +7,5 @@ export const useBastebandiShode = (shomarefactor: string) => {
     queryKey: ["bastebandiShode", shomarefactor],
     queryFn: () => getAllBasteBandiShodeList(shomarefactor),
     staleTime: 2000,
-    retry: 5,
   });
 };

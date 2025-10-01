@@ -7,6 +7,5 @@ export const useBastebandi = (shomarefactor: string) => {
     queryKey: ["bastebandi", shomarefactor],
     queryFn: () => getBastebandiList(shomarefactor),
     staleTime: 2000,
-    retry: 5,
   });
 };

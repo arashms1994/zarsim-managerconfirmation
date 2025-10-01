@@ -7,7 +7,6 @@ export const useDetailCustomerFactor = (parentDetailCode: string) => {
     queryKey: ["detailCustomerFactor", parentDetailCode],
     queryFn: () => getAllDetailCustomerFactorList(parentDetailCode),
     staleTime: 2000,
-    retry: 5,
     enabled: !!parentDetailCode,
   });
 };
