@@ -159,7 +159,7 @@ export function ChangeHistoryTable() {
         </span>
       </div>
 
-      <div className="flex items-center justify-start gap-2 w-full">
+      <div className="flex items-center justify-start gap-2 w-full max-w-[550px]">
         <span className="text-lg font font-medium">جست و جو در جدول:</span>
         <Input
           placeholder="جست‌وجو در همه ستون‌ها ..."
