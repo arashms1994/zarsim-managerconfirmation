@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
 import {
   ArrowUpDown,
@@ -32,6 +32,10 @@ import moment from "jalali-moment";
 import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
 import { Modal } from "../modal/Modal";
 import { ActionsCell } from "../action-colomn/ActionCell";
+import {
+  getCurrentUser,
+  getCustomerFactorByOrderNumber,
+} from "../../api/getData";
 
 const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
@@ -105,9 +109,84 @@ export function ChangeHistoryTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] =
     useState<IChangePreInvoiceRowHistoryListItem | null>(null);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [filteredData, setFilteredData] = useState<
+    IChangePreInvoiceRowHistoryListItem[]
+  >([]);
+  const [isFiltering, setIsFiltering] = useState(false);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUser(user);
+        console.log("کاربر فعلی:", user);
+      } catch (error) {
+        console.error("خطا در دریافت اطلاعات کاربر:", error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    const filterDataByUser = async () => {
+      if (!currentUser || !preInvoiceRows.length) {
+        setFilteredData(preInvoiceRows);
+        return;
+      }
+
+      setIsFiltering(true);
+
+      try {
+        const filteredItems: IChangePreInvoiceRowHistoryListItem[] = [];
+
+        if (currentUser === "i:0#.w|zarsim\\Rashaadmin") {
+          setFilteredData(preInvoiceRows);
+          setIsFiltering(false);
+          return;
+        }
+
+        for (const row of preInvoiceRows) {
+          try {
+            const customerFactor = await getCustomerFactorByOrderNumber(
+              row.orderNumber
+            );
+
+            if (customerFactor) {
+              const isAuthorized =
+                customerFactor.FirstUser === currentUser ||
+                customerFactor.managertext === currentUser;
+
+              if (isAuthorized) {
+                filteredItems.push(row);
+              }
+            }
+          } catch (error) {
+            console.error(
+              `خطا در بررسی دسترسی برای orderNumber ${row.orderNumber}:`,
+              error
+            );
+          }
+        }
+
+        setFilteredData(filteredItems);
+        console.log(
+          `تعداد رکوردهای فیلتر شده: ${filteredItems.length} از ${preInvoiceRows.length}`
+        );
+      } catch (error) {
+        console.error("خطا در فیلتر کردن داده‌ها:", error);
+        setFilteredData(preInvoiceRows);
+      } finally {
+        setIsFiltering(false);
+      }
+    };
+
+    filterDataByUser();
+  }, [currentUser, preInvoiceRows]);
 
   const table = useReactTable({
-    data: preInvoiceRows,
+    data: filteredData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -138,7 +217,7 @@ export function ChangeHistoryTable() {
     setIsModalOpen(true);
   };
 
-  if (isLoading) {
+  if (isLoading || isFiltering) {
     return (
       <div className="flex flex-col space-y-3">
         <Skeleton className="h-[125px] w-[250px] rounded-xl" />
@@ -146,6 +225,11 @@ export function ChangeHistoryTable() {
           <Skeleton className="h-4 w-[250px]" />
           <Skeleton className="h-4 w-[200px]" />
         </div>
+        {isFiltering && (
+          <div className="text-center text-blue-600">
+            در حال فیلتر کردن داده‌ها بر اساس دسترسی کاربر...
+          </div>
+        )}
       </div>
     );
   }

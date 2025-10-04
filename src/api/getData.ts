@@ -3,11 +3,33 @@ import type {
   IBastebandiListItem,
   IBastebandiShodeListItem,
   IChangePreInvoiceRowHistoryListItem,
+  ICustomerFactorListItem,
   IDetailCustomerFactorListItem,
   IOrderProductsListItem,
   IPishraftMarahelTolidItem,
   IProductionPlanListItem,
 } from "../types/type";
+
+declare const _spPageContextInfo: { webAbsoluteUrl: string };
+
+export async function getCurrentUser(): Promise<string> {
+  const response = await fetch(
+    `${_spPageContextInfo.webAbsoluteUrl}/_api/web/currentuser`,
+    {
+      headers: { Accept: "application/json;odata=verbose" },
+      credentials: "same-origin",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  const data = await response.json();
+  const rawLoginName = data.d.LoginName;
+
+  return rawLoginName;
+}
 
 export async function getAllChangePreInvoiceRowHistoryList(): Promise<
   IChangePreInvoiceRowHistoryListItem[]
@@ -286,5 +308,40 @@ export async function getAllSubProductionPlanList(
   } catch (err) {
     console.error("خطا در دریافت آیتم‌ها:", err);
     return [];
+  }
+}
+
+export async function getCustomerFactorByOrderNumber(
+  orderNumber: string
+): Promise<ICustomerFactorListItem | null> {
+  const listGuid = "924CB941-E9F6-44E1-B0F1-EAE7C6C6B154";
+  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=LinkTitle eq '${encodeURIComponent(
+    orderNumber
+  )}'&$top=1`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json;odata=verbose",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error(`خطا در درخواست: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const result = data.d.results as ICustomerFactorListItem[];
+
+    if (result.length > 0) {
+      return result[0];
+    }
+
+    return null;
+  } catch (err) {
+    console.error("خطا در دریافت آیتم CustomerFactor:", err);
+    return null;
   }
 }
