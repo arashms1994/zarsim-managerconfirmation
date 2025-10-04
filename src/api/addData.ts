@@ -489,15 +489,7 @@ const updatePishraftMarahelTolidFields = async (
           `خطای HTTP در آپدیت PishraftMarahelTolid (ID: ${item.Id}): ${updateResponse.status} - ${errorText}`
         );
       }
-
-      console.log(
-        `✅ PishraftMarahelTolid با ID ${item.Id} با موفقیت آپدیت شد`
-      );
     }
-
-    console.log(
-      `✅ ${existingItems.length} ردیف PishraftMarahelTolid با shomaresefaresh ${shomaresefaresh} با موفقیت آپدیت شد`
-    );
   } catch (err) {
     console.error("❌ خطا در آپدیت PishraftMarahelTolid:", err);
     throw err;
@@ -571,13 +563,7 @@ const updateSubProductionPlanFields = async (
           `خطای HTTP در آپدیت SubProductionPlan (ID: ${item.Id}): ${updateResponse.status} - ${errorText}`
         );
       }
-
-      console.log(`✅ SubProductionPlan با ID ${item.Id} با موفقیت آپدیت شد`);
     }
-
-    console.log(
-      `✅ ${existingItems.length} ردیف SubProductionPlan با shomareradiffactor ${shomareradiffactor} با موفقیت آپدیت شد`
-    );
   } catch (err) {
     console.error("❌ خطا در آپدیت SubProductionPlan:", err);
     throw err;
@@ -666,10 +652,6 @@ const updateBastebandiShodeFields = async (
         `خطای HTTP در آپدیت BastebandiShode: ${updateResponse.status} - ${errorText}`
       );
     }
-
-    console.log(
-      `✅ BastebandiShode با shomarefactor ${shomarefactor} با موفقیت آپدیت شد`
-    );
   } catch (err) {
     console.error("❌ خطا در آپدیت BastebandiShode:", err);
     throw err;
@@ -792,9 +774,6 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
     await updateOnlyGoodscode(targetItem.Id, rowData.finalProductCode);
 
     if (rowData.shomarefactor) {
-      console.log(
-        `🔄 شروع آپدیت Bastebandi برای shomarefactor: ${rowData.shomarefactor}`
-      );
       await updateBastebandiFields(rowData.shomarefactor, {
         printTitle: rowData.printTitle,
         productTittle: rowData.productTittle,
@@ -822,9 +801,6 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
     }
 
     if (rowData.shomarefactor) {
-      console.log(
-        `🔄 شروع آپدیت BastebandiShode برای shomarefactor: ${rowData.shomarefactor}`
-      );
       await updateBastebandiShodeFields(rowData.shomarefactor, {
         printTitle: rowData.printTitle,
         productTittle: rowData.productTittle,
@@ -852,9 +828,6 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
     }
 
     if (rowData.shomaresefaresh) {
-      console.log(
-        `🔄 شروع آپدیت PishraftMarahelTolid برای shomaresefaresh: ${rowData.shomaresefaresh}`
-      );
       await updatePishraftMarahelTolidFields(rowData.shomaresefaresh, {
         printTitle: rowData.printTitle,
         productTittle: rowData.productTittle,
@@ -884,9 +857,6 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
     }
 
     if (rowData.shomareradiffactor) {
-      console.log(
-        `🔄 شروع آپدیت SubProductionPlan برای shomareradiffactor: ${rowData.shomareradiffactor}`
-      );
       await updateSubProductionPlanFields(rowData.shomareradiffactor, {
         printTitle: rowData.printTitle,
         productTittle: rowData.productTittle,
@@ -914,8 +884,6 @@ const handleApprovalForSTWGreaterOrEqual4 = async (rowData: {
         "⚠️ shomareradiffactor موجود نیست، SubProductionPlan آپدیت نمی‌شود"
       );
     }
-
-    console.log("✅ آپدیت برای STW >= 4 با موفقیت انجام شد");
   } catch (err) {
     console.error("❌ خطا در آپدیت برای STW >= 4:", err);
     throw err;

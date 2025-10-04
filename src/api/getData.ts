@@ -110,13 +110,8 @@ export async function getAllChangePreInvoiceRowHistoryList(): Promise<
 
       items = [...items, ...results];
       nextUrl = json.d.__next ?? null;
-
-      console.log(
-        `دریافت ${results.length} آیتم. کل آیتم‌ها: ${items.length}, Next URL: ${nextUrl}`
-      );
     }
 
-    console.log(`کل آیتم‌های دریافت‌شده: ${items.length}`);
     return items;
   } catch (err) {
     console.error("خطا در دریافت آیتم‌های changePreInvoiceRowHistory:", err);

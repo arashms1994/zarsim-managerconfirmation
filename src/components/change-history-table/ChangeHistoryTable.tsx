@@ -120,7 +120,6 @@ export function ChangeHistoryTable() {
       try {
         const user = await getCurrentUser();
         setCurrentUser(user);
-        console.log("کاربر فعلی:", user);
       } catch (error) {
         console.error("خطا در دریافت اطلاعات کاربر:", error);
       }
@@ -171,9 +170,7 @@ export function ChangeHistoryTable() {
         }
 
         setFilteredData(filteredItems);
-        console.log(
-          `تعداد رکوردهای فیلتر شده: ${filteredItems.length} از ${preInvoiceRows.length}`
-        );
+
       } catch (error) {
         console.error("خطا در فیلتر کردن داده‌ها:", error);
         setFilteredData(preInvoiceRows);
