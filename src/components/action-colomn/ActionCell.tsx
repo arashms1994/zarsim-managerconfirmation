@@ -18,9 +18,20 @@ export const ActionsCell: React.FC<{
     if (isLoading) return;
 
     setIsLoading(true);
+
+    queryClient.setQueryData<IChangePreInvoiceRowHistoryListItem[]>(
+      ["changePreInvoiceRowHistory"],
+      (oldData) => {
+        if (!oldData) return oldData;
+        return oldData.map((item) =>
+          item.ID === rowItem.ID ? { ...item, status: "1" } : item
+        );
+      }
+    );
+
     try {
       await handleApproveChangePreInvoiceRow({
-        ID: rowItem.ID, // استفاده از ID منحصر به فرد به جای Title
+        ID: rowItem.ID,
         Title: rowItem.Title,
         finalProductCode: rowItem.finalProductCode || "",
         STW: rowItem.STW || "",
@@ -49,10 +60,17 @@ export const ActionsCell: React.FC<{
       });
 
       await queryClient.invalidateQueries({
+        queryKey: ["changePreInvoiceRowHistory"],
+      });
+
+      await queryClient.invalidateQueries({
         queryKey: ["detailCustomerFactor", rowItem.parent_ditaile_code],
       });
     } catch (error) {
       console.error("خطا در تأیید:", error);
+      queryClient.invalidateQueries({
+        queryKey: ["changePreInvoiceRowHistory"],
+      });
     } finally {
       setIsLoading(false);
     }
@@ -63,9 +81,20 @@ export const ActionsCell: React.FC<{
     if (isLoading) return;
 
     setIsLoading(true);
+
+    queryClient.setQueryData<IChangePreInvoiceRowHistoryListItem[]>(
+      ["changePreInvoiceRowHistory"],
+      (oldData) => {
+        if (!oldData) return oldData;
+        return oldData.map((item) =>
+          item.ID === rowItem.ID ? { ...item, status: "2" } : item
+        );
+      }
+    );
+
     try {
       await handleRejectChangePreInvoiceRow({
-        ID: rowItem.ID, // استفاده از ID منحصر به فرد به جای Title
+        ID: rowItem.ID,
         Title: rowItem.Title,
       });
 
@@ -74,6 +103,9 @@ export const ActionsCell: React.FC<{
       });
     } catch (error) {
       console.error("خطا در رد:", error);
+      queryClient.invalidateQueries({
+        queryKey: ["changePreInvoiceRowHistory"],
+      });
     } finally {
       setIsLoading(false);
     }
