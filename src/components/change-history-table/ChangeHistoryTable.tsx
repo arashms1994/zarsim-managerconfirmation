@@ -232,7 +232,7 @@ export function ChangeHistoryTable() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-fit">
       <div className="w-full flex justify-between items-center mb-3">
         <div className="bg-blue-300 flex items-center justify-center rounded-lg p-4 max-w-fit w-full">
           <span className="text-slate-700 text-2xl font-semibold">
