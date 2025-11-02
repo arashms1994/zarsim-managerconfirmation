@@ -10,7 +10,7 @@ import {
 } from "./getData";
 
 const updateChangePreInvoiceRowStatus = async (
-  title: string,
+  id: number,
   status: string
 ) => {
   const listGuid = "17062ABC-325C-48D5-B1ED-6D2C9308BEDB";
@@ -21,32 +21,11 @@ const updateChangePreInvoiceRowStatus = async (
       throw new Error("نتوانستیم itemType لیست را دریافت کنیم");
     }
 
-    const searchUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=Title eq '${title}'`;
-
-    const searchResponse = await fetch(searchUrl, {
-      method: "GET",
-      headers: {
-        Accept: "application/json;odata=verbose",
-      },
-    });
-
-    if (!searchResponse.ok) {
-      throw new Error(`خطای HTTP در جستجو: ${searchResponse.status}`);
-    }
-
-    const searchData = await searchResponse.json();
-    const targetItem = searchData.d.results?.[0];
-
-    if (!targetItem) {
-      throw new Error(
-        `ردیف با Title ${title} در لیست changePreInvoiceRowHistory یافت نشد`
-      );
-    }
-
+    // استفاده مستقیم از ID برای پیدا کردن ردیف (بدون نیاز به جستجو)
     const digest = await getDigest();
 
     const updateResponse = await fetch(
-      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${targetItem.Id})`,
+      `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items(${id})`,
       {
         method: "POST",
         headers: {
@@ -954,6 +933,7 @@ const handleApprovalForSTWLessThan4 = async (rowData: {
 };
 
 export const handleApproveChangePreInvoiceRow = async (rowData: {
+  ID: number;
   Title: string;
   finalProductCode: string;
   STW: string;
@@ -1014,7 +994,8 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
       await handleApprovalForSTWLessThan4(rowData);
     }
 
-    await updateChangePreInvoiceRowStatus(rowData.Title, "1");
+    // استفاده از ID به جای Title برای پیدا کردن ردیف دقیق
+    await updateChangePreInvoiceRowStatus(rowData.ID, "1");
 
     toast.success(`ردیف ${rowData.Title} با موفقیت تأیید و آپدیت شد.`, {
       position: "top-center",
@@ -1051,10 +1032,12 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
 };
 
 export const handleRejectChangePreInvoiceRow = async (rowData: {
+  ID: number;
   Title: string;
 }) => {
   try {
-    await updateChangePreInvoiceRowStatus(rowData.Title, "2");
+    // استفاده از ID به جای Title برای پیدا کردن ردیف دقیق
+    await updateChangePreInvoiceRowStatus(rowData.ID, "2");
 
     toast.success(`ردیف ${rowData.Title} با موفقیت رد شد.`, {
       position: "top-center",

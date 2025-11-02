@@ -170,7 +170,6 @@ export function ChangeHistoryTable() {
         }
 
         setFilteredData(filteredItems);
-
       } catch (error) {
         console.error("خطا در فیلتر کردن داده‌ها:", error);
         setFilteredData(preInvoiceRows);
@@ -185,6 +184,8 @@ export function ChangeHistoryTable() {
   const table = useReactTable({
     data: filteredData,
     columns,
+    // استفاده از ID به عنوان شناسه منحصر به فرد هر ردیف
+    getRowId: (row) => row.ID.toString(),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

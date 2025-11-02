@@ -20,6 +20,7 @@ export const ActionsCell: React.FC<{
     setIsLoading(true);
     try {
       await handleApproveChangePreInvoiceRow({
+        ID: rowItem.ID, // استفاده از ID منحصر به فرد به جای Title
         Title: rowItem.Title,
         finalProductCode: rowItem.finalProductCode || "",
         STW: rowItem.STW || "",
@@ -64,6 +65,7 @@ export const ActionsCell: React.FC<{
     setIsLoading(true);
     try {
       await handleRejectChangePreInvoiceRow({
+        ID: rowItem.ID, // استفاده از ID منحصر به فرد به جای Title
         Title: rowItem.Title,
       });
 
