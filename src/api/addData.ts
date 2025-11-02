@@ -21,7 +21,6 @@ const updateChangePreInvoiceRowStatus = async (
       throw new Error("نتوانستیم itemType لیست را دریافت کنیم");
     }
 
-    // استفاده مستقیم از ID برای پیدا کردن ردیف (بدون نیاز به جستجو)
     const digest = await getDigest();
 
     const updateResponse = await fetch(
@@ -994,7 +993,6 @@ export const handleApproveChangePreInvoiceRow = async (rowData: {
       await handleApprovalForSTWLessThan4(rowData);
     }
 
-    // استفاده از ID به جای Title برای پیدا کردن ردیف دقیق
     await updateChangePreInvoiceRowStatus(rowData.ID, "1");
 
     toast.success(`ردیف ${rowData.Title} با موفقیت تأیید و آپدیت شد.`, {
@@ -1036,7 +1034,6 @@ export const handleRejectChangePreInvoiceRow = async (rowData: {
   Title: string;
 }) => {
   try {
-    // استفاده از ID به جای Title برای پیدا کردن ردیف دقیق
     await updateChangePreInvoiceRowStatus(rowData.ID, "2");
 
     toast.success(`ردیف ${rowData.Title} با موفقیت رد شد.`, {

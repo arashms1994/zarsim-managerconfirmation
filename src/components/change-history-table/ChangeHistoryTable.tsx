@@ -184,7 +184,6 @@ export function ChangeHistoryTable() {
   const table = useReactTable({
     data: filteredData,
     columns,
-    // استفاده از ID به عنوان شناسه منحصر به فرد هر ردیف
     getRowId: (row) => row.ID.toString(),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
