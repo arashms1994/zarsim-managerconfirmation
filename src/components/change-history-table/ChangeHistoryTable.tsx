@@ -57,16 +57,13 @@ const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
     accessorKey: "preInvoiceProductTitle",
     header: "شرح محصول",
     cell: ({ row }) => (
-      <div>{row.getValue("preInvoiceProductTitle") || "-"}</div>
+      <div className="w-full max-w-[800px] truncate">
+        {row.getValue("preInvoiceProductTitle") || "-"}
+      </div>
     ),
     enableGlobalFilter: true,
   },
-  {
-    accessorKey: "customerName",
-    header: "نام مشتری",
-    cell: ({ row }) => <div>{row.getValue("customerName") || "-"}</div>,
-    enableGlobalFilter: true,
-  },
+
   {
     accessorFn: (row) => row.Created || "-",
     id: "Created",
