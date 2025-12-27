@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import type { IBastebandiShodeListItem } from "../types/type";
 import { getAllBasteBandiShodeList } from "../api/getData";
+import type { IBastebandiShodeListItem } from "../types/type";
 
 export const useBastebandiShode = (shomarefactor: string) => {
   return useQuery<IBastebandiShodeListItem | null, Error>({

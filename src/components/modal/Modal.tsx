@@ -1,6 +1,6 @@
-import { useDetailCustomerFactor } from "../../hooks/useDetailCustomerFactor";
-import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
 import { Skeleton } from "../ui/skeleton";
+import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
+import { useDetailCustomerFactor } from "../../hooks/useDetailCustomerFactor";
 
 export const Modal = ({
   isOpen,
