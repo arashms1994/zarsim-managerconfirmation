@@ -615,6 +615,7 @@ const updateBastebandiShodeFields = async (
           packing_name: rowData.packingTitle,
           Size: parsedProduct.ProductSize,
           sharhmahsolemoshtari: rowData.preInvoiceProductTitle,
+          goods_title: rowData.preInvoiceProductTitle,
           code_15r: rowData.finalGenerationCode,
           packing_code: rowData.packingCode,
           coler_final_code: rowData.colorFinalCode,
