@@ -50,6 +50,11 @@ export const Modal = ({
           <div className="w-full p-1 flex flex-wrap items-center justify-around gap-1">
             <p className="font-medium text-slate-800 text-lg">
               <strong className="text-base">متراژ:</strong>{" "}
+              {detailCustomerFactor?.Product || "-"}
+            </p>
+
+            <p className="font-medium text-slate-800 text-lg">
+              <strong className="text-base">متراژ:</strong>{" "}
               {detailCustomerFactor?.Amount || "-"}
             </p>
 
@@ -76,6 +81,11 @@ export const Modal = ({
           </p>
 
           <div className="w-full p-1 flex items-center justify-around gap-1">
+            <p className="font-medium text-slate-800 text-lg">
+              <strong className="text-base">کدطرح:</strong>{" "}
+              {rowData.productCode || "-"}
+            </p>
+
             <p className="font-medium text-slate-800 text-lg">
               <strong className="text-base">متراژ:</strong>{" "}
               {rowData.amount || "-"}
