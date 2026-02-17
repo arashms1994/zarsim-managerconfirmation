@@ -53,7 +53,7 @@
 | **محصولات سفارش (OrderProducts)**              | لیست با GUID                 | `B749FB13-24C9-4404-8200-BCFA5DED5EDC` | بدون فیلتر (همه) یا OrderRowNo/LinkTitle/Title برای یافتن یک آیتم |
 | **جزئیات فاکتور مشتری (DetailCustomerFactor)** | لیست با GUID                 | `C6636CFE-76E0-4E0F-B65F-C14893D3970E` | `parent_ditaile_code eq '...'`                                    |
 | **برنامه تولید فرعی (SubProductionPlan)**      | لیست با GUID                 | `0F8D6219-AA01-4645-B8DE-25B796AB9C5F` | `shomareradiffactor eq '...'`                                     |
-| **فاکتور مشتری (CustomerFactor)**              | لیست با GUID                 | `924CB941-E9F6-44E1-B0F1-EAE7C6C6B154` | `LinkTitle eq '...'` (orderNumber)                                |
+| **فاکتور مشتری (CustomerFactor)**              | لیست با GUID                 | `924CB941-E9F6-44E1-B0F1-EAE7C6C6B154` | تک‌مقدار: `LinkTitle eq '...'`. دسته‌ای (فیلتر جدول): `getCustomerFactorsByOrderNumbers(orderNumbers)` با فیلتر `(LinkTitle eq 'a' or LinkTitle eq 'b' or ...)` در دسته‌های ۳۰تایی به‌صورت موازی. |
 | **Digest برای POST**                           | `/_api/contextinfo`          | —                                      | درخواست POST برای دریافت FormDigestValue                          |
 
 ---
@@ -81,7 +81,7 @@
 
 1. **دریافت کاربر فعلی:** `getCurrentUser()` از `_spPageContextInfo.webAbsoluteUrl/_api/web/currentuser`.
 2. **دریافت لیست تغییرات:** `getAllChangePreInvoiceRowHistoryList()` از لیست `changePreInvoiceRowHistory` (مرتب‌سازی بر اساس ID نزولی).
-3. **فیلتر بر اساس دسترسی:** برای هر ردیف با `orderNumber` همان ردیف، `getCustomerFactorByOrderNumber(orderNumber)` صدا زده می‌شود. فقط اگر کاربر فعلی برابر `FirstUser` یا `managertext` فاکتور مشتری باشد (یا کاربر ادمین مثل `i:0#.w|zarsim\Rashaadmin`)، آن ردیف در جدول نمایش داده می‌شود.
+3. **فیلتر بر اساس دسترسی:** یک بار `getCustomerFactorsByOrderNumbers(orderNumbers)` برای همه `orderNumber`های یکتا صدا زده می‌شود (چند درخواست موازی به‌صورت دسته‌های ۳۰تایی به‌جای N درخواست پشت‌سرهم). فقط ردیف‌هایی که کاربر فعلی برابر `FirstUser` یا `managertext` فاکتور مشتری است (یا ادمین مثل `i:0#.w|zarsim\Rashaadmin`) در جدول نمایش داده می‌شوند.
 4. جدول با ستون‌های: شماره ردیف پیش‌فاکتور (Title)، شرح محصول، تاریخ درخواست (شمسی)، عملیات (تأیید/رد یا وضعیت). جست‌وجوی سراسری و صفحه‌بندی (۵۰ رکورد در صفحه) فعال است.
 
 ### کلیک روی ردیف و مودال جزئیات
@@ -127,7 +127,7 @@
 - **صفحه اصلی:** `ChangeHistoryTable`: جدول تاریخچه تغییرات، فیلتر بر اساس کاربر، جست‌وجو، صفحه‌بندی، کلیک ردیف برای مودال.
 - **ستون عملیات:** `ActionsCell`: دکمه تأیید/رد، لودینگ حداقل ۳ ثانیه، به‌روزرسانی وضعیت بعد از پاسخ سرور.
 - **مودال:** `Modal`: نمایش جزئیات پیش‌فاکتور و اصلاحات با داده از `useDetailCustomerFactor(rowData?.Title)`.
-- **API:** `getData.ts` برای همه GETها، `addData.ts` برای همه POST/MERGEها و منطق تأیید/رد. `getDigest.ts` برای دریافت FormDigest.
+- **API:** `getData.ts` برای همه GETها (شامل `getCustomerFactorsByOrderNumbers` برای فیلتر دسترسی سریع)، `addData.ts` برای همه POST/MERGEها و منطق تأیید/رد. `getDigest.ts` برای دریافت FormDigest.
 - **تایپ‌ها:** `types/type.ts` (مثل IChangePreInvoiceRowHistoryListItem، IBastebandiListItem، …).
 
 ---
