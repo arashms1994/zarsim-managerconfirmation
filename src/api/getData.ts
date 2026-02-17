@@ -123,9 +123,12 @@ export async function getBastebandiList(
   shomarefactor: string
 ): Promise<IBastebandiListItem | null> {
   const listGuid = "9B482D2A-67F6-451B-BBA1-A47E5ABD95C5";
-  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomarefactor eq '${encodeURIComponent(
-    shomarefactor
-  )}'&$top=1`;
+
+  const escaped = String(shomarefactor).replaceAll("'", "''");
+  const filter = `shomarefactor eq '${escaped}'`;
+  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=${encodeURIComponent(
+    filter
+  )}&$top=1`;
 
   try {
     const response = await fetch(url, {
@@ -133,6 +136,7 @@ export async function getBastebandiList(
       headers: {
         Accept: "application/json;odata=verbose",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -141,12 +145,8 @@ export async function getBastebandiList(
 
     const data = await response.json();
 
-    const result = data.d.results as IBastebandiListItem[];
-    if (result.length > 0) {
-      return result[0];
-    }
-
-    return null;
+    const results = data.d?.results as IBastebandiListItem[] | undefined;
+    return results && results.length > 0 ? results[0] : null;
   } catch (err) {
     console.error("خطا در دریافت آیتم:", err);
     return null;
@@ -157,10 +157,11 @@ export async function getAllBasteBandiShodeList(
   shomarefactor: string
 ): Promise<IBastebandiShodeListItem | null> {
   const listGuid = "1788C718-E3CA-461C-AF37-23B1C970F9DC";
-
-  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomarefactor eq '${encodeURIComponent(
-    shomarefactor
-  )}'&$top=1`;
+  const escaped = String(shomarefactor).replaceAll("'", "''");
+  const filter = `shomarefactor eq '${escaped}'`;
+  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=${encodeURIComponent(
+    filter
+  )}&$top=1`;
 
   try {
     const response = await fetch(url, {
@@ -168,6 +169,7 @@ export async function getAllBasteBandiShodeList(
       headers: {
         Accept: "application/json;odata=verbose",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -176,12 +178,8 @@ export async function getAllBasteBandiShodeList(
 
     const data = await response.json();
 
-    const result = data.d.results as IBastebandiListItem[];
-    if (result.length > 0) {
-      return result[0];
-    }
-
-    return null;
+    const results = data.d?.results as IBastebandiShodeListItem[] | undefined;
+    return results && results.length > 0 ? results[0] : null;
   } catch (err) {
     console.error("خطا در دریافت آیتم:", err);
     return null;
@@ -192,7 +190,11 @@ export async function getAllPishraftMaraheleTolidList(
   shomaresefaresh: string
 ): Promise<IPishraftMarahelTolidItem[]> {
   const listGuid = "66184F05-6D40-473D-AE54-7E0C029BDEB2";
-  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomaresefaresh eq '${shomaresefaresh}'`;
+  const escaped = String(shomaresefaresh).replaceAll("'", "''");
+  const filter = `shomaresefaresh eq '${escaped}'`;
+  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=${encodeURIComponent(
+    filter
+  )}`;
 
   try {
     const response = await fetch(nextUrl, {
@@ -200,6 +202,7 @@ export async function getAllPishraftMaraheleTolidList(
       headers: {
         Accept: "application/json;odata=verbose",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -231,6 +234,7 @@ export async function getAllOrderProductsList(): Promise<
         headers: {
           Accept: "application/json;odata=verbose",
         },
+        credentials: "include",
       });
 
       const data = await response.json();
@@ -251,7 +255,11 @@ export async function getAllDetailCustomerFactorList(
   parentDetailCode: string
 ): Promise<IDetailCustomerFactorListItem | null> {
   const listGuid = "C6636CFE-76E0-4E0F-B65F-C14893D3970E";
-  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=parent_ditaile_code eq '${parentDetailCode}'`;
+  const escaped = String(parentDetailCode).replaceAll("'", "''");
+  const filter = `parent_ditaile_code eq '${escaped}'`;
+  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=${encodeURIComponent(
+    filter
+  )}`;
 
   try {
     const response = await fetch(nextUrl, {
@@ -259,6 +267,7 @@ export async function getAllDetailCustomerFactorList(
       headers: {
         Accept: "application/json;odata=verbose",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -281,7 +290,11 @@ export async function getAllSubProductionPlanList(
   shomareradiffactor: string
 ): Promise<IProductionPlanListItem[]> {
   const listGuid = "0F8D6219-AA01-4645-B8DE-25B796AB9C5F";
-  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=shomareradiffactor eq '${shomareradiffactor}'`;
+  const escaped = String(shomareradiffactor).replaceAll("'", "''");
+  const filter = `shomareradiffactor eq '${escaped}'`;
+  const nextUrl = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=${encodeURIComponent(
+    filter
+  )}`;
 
   try {
     const response = await fetch(nextUrl, {
@@ -289,6 +302,7 @@ export async function getAllSubProductionPlanList(
       headers: {
         Accept: "application/json;odata=verbose",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -310,9 +324,11 @@ export async function getCustomerFactorByOrderNumber(
   orderNumber: string
 ): Promise<ICustomerFactorListItem | null> {
   const listGuid = "924CB941-E9F6-44E1-B0F1-EAE7C6C6B154";
-  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=LinkTitle eq '${encodeURIComponent(
-    orderNumber
-  )}'&$top=1`;
+  const escaped = String(orderNumber).replaceAll("'", "''");
+  const filter = `LinkTitle eq '${escaped}'`;
+  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=${encodeURIComponent(
+    filter
+  )}&$top=1`;
 
   try {
     const response = await fetch(url, {
