@@ -18,16 +18,7 @@ export const ActionsCell: React.FC<{
     if (isLoading) return;
 
     setIsLoading(true);
-
-    queryClient.setQueryData<IChangePreInvoiceRowHistoryListItem[]>(
-      ["changePreInvoiceRowHistory"],
-      (oldData) => {
-        if (!oldData) return oldData;
-        return oldData.map((item) =>
-          item.ID === rowItem.ID ? { ...item, status: "1" } : item
-        );
-      }
-    );
+    const startTime = Date.now();
 
     try {
       await handleApproveChangePreInvoiceRow({
@@ -59,6 +50,11 @@ export const ActionsCell: React.FC<{
         shomareradiffactor: rowItem.Title || "",
       });
 
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 3000) {
+        await new Promise((r) => setTimeout(r, 3000 - elapsed));
+      }
+
       await queryClient.invalidateQueries({
         queryKey: ["changePreInvoiceRowHistory"],
       });
@@ -68,6 +64,10 @@ export const ActionsCell: React.FC<{
       });
     } catch (error) {
       console.error("خطا در تأیید:", error);
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 3000) {
+        await new Promise((r) => setTimeout(r, 3000 - elapsed));
+      }
       queryClient.invalidateQueries({
         queryKey: ["changePreInvoiceRowHistory"],
       });
@@ -81,16 +81,7 @@ export const ActionsCell: React.FC<{
     if (isLoading) return;
 
     setIsLoading(true);
-
-    queryClient.setQueryData<IChangePreInvoiceRowHistoryListItem[]>(
-      ["changePreInvoiceRowHistory"],
-      (oldData) => {
-        if (!oldData) return oldData;
-        return oldData.map((item) =>
-          item.ID === rowItem.ID ? { ...item, status: "2" } : item
-        );
-      }
-    );
+    const startTime = Date.now();
 
     try {
       await handleRejectChangePreInvoiceRow({
@@ -98,11 +89,20 @@ export const ActionsCell: React.FC<{
         Title: rowItem.Title,
       });
 
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 3000) {
+        await new Promise((r) => setTimeout(r, 3000 - elapsed));
+      }
+
       await queryClient.invalidateQueries({
         queryKey: ["changePreInvoiceRowHistory"],
       });
     } catch (error) {
       console.error("خطا در رد:", error);
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 3000) {
+        await new Promise((r) => setTimeout(r, 3000 - elapsed));
+      }
       queryClient.invalidateQueries({
         queryKey: ["changePreInvoiceRowHistory"],
       });
@@ -123,8 +123,9 @@ export const ActionsCell: React.FC<{
     return (
       <div className="space-x-2 flex items-center justify-center">
         {isLoading ? (
-          <div className="text-blue-600 text-sm font-medium">
-            در حال پردازش...
+          <div className="flex items-center gap-2 text-sm font-medium text-[#1e7677]">
+            <div className="h-4 w-4 rounded-full border-2 border-[#1e7677] border-t-transparent animate-spin" />
+            <span>در حال پردازش...</span>
           </div>
         ) : (
           <>
