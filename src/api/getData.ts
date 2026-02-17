@@ -320,13 +320,72 @@ export async function getAllSubProductionPlanList(
   }
 }
 
+const CUSTOMER_FACTOR_LIST_GUID = "924CB941-E9F6-44E1-B0F1-EAE7C6C6B154";
+const CUSTOMER_FACTOR_BATCH_SIZE = 50;
+
+export async function getCustomerFactorsByOrderNumbers(
+  orderNumbers: string[]
+): Promise<Map<string, ICustomerFactorListItem>> {
+  const unique = [...new Set(orderNumbers.filter(Boolean))];
+  if (unique.length === 0) return new Map();
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < unique.length; i += CUSTOMER_FACTOR_BATCH_SIZE) {
+    chunks.push(unique.slice(i, i + CUSTOMER_FACTOR_BATCH_SIZE));
+  }
+
+  const filterPart = (orderNumber: string) => {
+    const escaped = String(orderNumber).replaceAll("'", "''");
+    return `LinkTitle eq '${escaped}'`;
+  };
+
+  const fetchChunk = async (chunk: string[]) => {
+    const filter =
+      chunk.length === 1
+        ? filterPart(chunk[0])
+        : chunk.map(filterPart).join(" or ");
+    const url = `${BASE_URL}/_api/web/lists(guid'${CUSTOMER_FACTOR_LIST_GUID}')/items?$filter=${encodeURIComponent(
+      filter
+    )}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/json;odata=verbose" },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error(`خطا در درخواست CustomerFactor: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const results = (data.d?.results as ICustomerFactorListItem[]) ?? [];
+    return results;
+  };
+
+  try {
+    const resultsArrays = await Promise.all(chunks.map(fetchChunk));
+    const map = new Map<string, ICustomerFactorListItem>();
+    for (const results of resultsArrays) {
+      for (const item of results) {
+        const raw = item as { LinkTitle?: string };
+        const key = raw.LinkTitle ?? item.Title ?? String(item.Id);
+        map.set(key, item);
+      }
+    }
+    return map;
+  } catch (err) {
+    console.error("خطا در دریافت دسته‌ای CustomerFactor:", err);
+    return new Map();
+  }
+}
+
 export async function getCustomerFactorByOrderNumber(
   orderNumber: string
 ): Promise<ICustomerFactorListItem | null> {
-  const listGuid = "924CB941-E9F6-44E1-B0F1-EAE7C6C6B154";
   const escaped = String(orderNumber).replaceAll("'", "''");
   const filter = `LinkTitle eq '${escaped}'`;
-  const url = `${BASE_URL}/_api/web/lists(guid'${listGuid}')/items?$filter=${encodeURIComponent(
+  const url = `${BASE_URL}/_api/web/lists(guid'${CUSTOMER_FACTOR_LIST_GUID}')/items?$filter=${encodeURIComponent(
     filter
   )}&$top=1`;
 

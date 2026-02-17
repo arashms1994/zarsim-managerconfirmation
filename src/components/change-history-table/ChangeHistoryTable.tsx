@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import {
   getCurrentUser,
-  getCustomerFactorByOrderNumber,
+  getCustomerFactorsByOrderNumbers,
 } from "../../api/getData";
 import {
   useReactTable,
@@ -135,36 +135,23 @@ export function ChangeHistoryTable() {
       setIsFiltering(true);
 
       try {
-        const filteredItems: IChangePreInvoiceRowHistoryListItem[] = [];
-
         if (currentUser === "i:0#.w|zarsim\\Rashaadmin") {
           setFilteredData(preInvoiceRows);
           setIsFiltering(false);
           return;
         }
 
-        for (const row of preInvoiceRows) {
-          try {
-            const customerFactor = await getCustomerFactorByOrderNumber(
-              row.orderNumber
-            );
+        const orderNumbers = preInvoiceRows.map((r) => r.orderNumber).filter(Boolean);
+        const factorMap = await getCustomerFactorsByOrderNumbers(orderNumbers);
 
-            if (customerFactor) {
-              const isAuthorized =
-                customerFactor.FirstUser === currentUser ||
-                customerFactor.managertext === currentUser;
-
-              if (isAuthorized) {
-                filteredItems.push(row);
-              }
-            }
-          } catch (error) {
-            console.error(
-              `خطا در بررسی دسترسی برای orderNumber ${row.orderNumber}:`,
-              error
-            );
-          }
-        }
+        const filteredItems = preInvoiceRows.filter((row) => {
+          const customerFactor = factorMap.get(row.orderNumber);
+          if (!customerFactor) return false;
+          return (
+            customerFactor.FirstUser === currentUser ||
+            customerFactor.managertext === currentUser
+          );
+        });
 
         setFilteredData(filteredItems);
       } catch (error) {
