@@ -5,13 +5,17 @@ import { Button } from "../ui/button";
 import { Modal } from "../modal/Modal";
 import { Skeleton } from "../ui/skeleton";
 import { ActionsCell } from "../action-colomn/ActionCell";
-import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
 import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
+import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
 import {
   ArrowUpDown,
   CircleChevronLeft,
   CircleChevronRight,
 } from "lucide-react";
+import {
+  getCurrentUser,
+  getCustomerFactorByOrderNumber,
+} from "../../api/getData";
 import {
   useReactTable,
   getCoreRowModel,
@@ -32,10 +36,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import {
-  getCurrentUser,
-  getCustomerFactorByOrderNumber,
-} from "../../api/getData";
 
 const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
   {
@@ -97,20 +97,20 @@ const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
 ];
 
 export function ChangeHistoryTable() {
-  const { data: preInvoiceRows = [], isLoading } = useChangePreInvoiceRow();
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [rowSelection, setRowSelection] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFiltering, setIsFiltering] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const { data: preInvoiceRows = [], isLoading } = useChangePreInvoiceRow();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] =
     useState<IChangePreInvoiceRowHistoryListItem | null>(null);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [filteredData, setFilteredData] = useState<
     IChangePreInvoiceRowHistoryListItem[]
   >([]);
-  const [isFiltering, setIsFiltering] = useState(false);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -259,9 +259,9 @@ export function ChangeHistoryTable() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -309,7 +309,7 @@ export function ChangeHistoryTable() {
           تا{" "}
           {Math.min(
             (table.getState().pagination.pageIndex + 1) *
-              table.getState().pagination.pageSize,
+            table.getState().pagination.pageSize,
             table.getFilteredRowModel().rows.length
           )}{" "}
           از {table.getFilteredRowModel().rows.length} رکورد
@@ -317,11 +317,10 @@ export function ChangeHistoryTable() {
 
         <div className="flex items-center space-x-2">
           <div
-            className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${
-              !table.getCanPreviousPage()
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-slate-300 cursor-pointer"
-            }`}
+            className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${!table.getCanPreviousPage()
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-slate-300 cursor-pointer"
+              }`}
             onClick={() => table.getCanPreviousPage() && table.previousPage()}
           >
             <CircleChevronRight
@@ -329,11 +328,10 @@ export function ChangeHistoryTable() {
             />
           </div>
           <div
-            className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${
-              !table.getCanNextPage()
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-slate-300 cursor-pointer"
-            }`}
+            className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${!table.getCanNextPage()
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-slate-300 cursor-pointer"
+              }`}
             onClick={() => table.getCanNextPage() && table.nextPage()}
           >
             <CircleChevronLeft
