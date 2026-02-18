@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
-import moment from "jalali-moment";
+import { columns } from "./Colomns";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 import { Modal } from "../modal/Modal";
 import { Skeleton } from "../ui/skeleton";
-import { ActionsCell } from "../action-colomn/ActionCell";
 import type { IChangePreInvoiceRowHistoryListItem } from "../../types/type";
 import { useChangePreInvoiceRow } from "../../hooks/useChangePreInvoiceRow";
 import {
-  ArrowUpDown,
   CircleChevronLeft,
   CircleChevronRight,
 } from "lucide-react";
@@ -23,7 +20,6 @@ import {
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
-  type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
   type VisibilityState,
@@ -37,65 +33,6 @@ import {
   TableRow,
 } from "../ui/table";
 
-const columns: ColumnDef<IChangePreInvoiceRowHistoryListItem>[] = [
-  {
-    accessorKey: "Title",
-    header: ({ column }) => (
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        شماره ردیف در پیش‌فاکتور
-        <ArrowUpDown />
-      </Button>
-    ),
-    cell: ({ row }) => <div>{row.getValue("Title")}</div>,
-    enableGlobalFilter: true,
-  },
-  {
-    accessorKey: "preInvoiceProductTitle",
-    header: "شرح محصول",
-    cell: ({ row }) => (
-      <div className="w-full max-w-[800px] truncate">
-        {row.getValue("preInvoiceProductTitle") || "-"}
-      </div>
-    ),
-    enableGlobalFilter: true,
-  },
-
-  {
-    accessorFn: (row) => row.Created || "-",
-    id: "Created",
-    header: ({ column }) => (
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        تاریخ درخواست
-        <ArrowUpDown />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const createdDate = row.getValue("Created");
-      const jalaliDate =
-        createdDate && createdDate !== "-"
-          ? moment(createdDate).locale("fa").format("YYYY/MM/DD")
-          : "-";
-      return <div>{jalaliDate}</div>;
-    },
-    enableGlobalFilter: true,
-  },
-  {
-    accessorFn: (row) => row.Editor?.Title || "-",
-    id: "editorTitle",
-    header: "عملیات",
-    cell: ({ row }) => <ActionsCell rowItem={row.original} />,
-    enableGlobalFilter: true,
-  },
-];
-
 export function ChangeHistoryTable() {
   const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
@@ -106,11 +43,11 @@ export function ChangeHistoryTable() {
   const { data: preInvoiceRows = [], isLoading } = useChangePreInvoiceRow();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [selectedRowData, setSelectedRowData] =
-    useState<IChangePreInvoiceRowHistoryListItem | null>(null);
   const [filteredData, setFilteredData] = useState<
     IChangePreInvoiceRowHistoryListItem[]
   >([]);
+  const [selectedRowData, setSelectedRowData] =
+    useState<IChangePreInvoiceRowHistoryListItem | null>(null);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -166,18 +103,18 @@ export function ChangeHistoryTable() {
   }, [currentUser, preInvoiceRows]);
 
   const table = useReactTable({
-    data: filteredData,
     columns,
-    getRowId: (row) => row.ID.toString(),
+    data: filteredData,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
+    getRowId: (row) => row.ID.toString(),
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    getPaginationRowModel: getPaginationRowModel(),
     globalFilterFn: "includesString",
     initialState: {
       pagination: {
@@ -207,7 +144,7 @@ export function ChangeHistoryTable() {
           <Skeleton className="h-4 w-[200px]" />
         </div>
         {isFiltering && (
-          <div className="text-center text-blue-600">
+          <div className="text-center text-[#1e7677]">
             در حال فیلتر کردن داده‌ها بر اساس دسترسی کاربر...
           </div>
         )}
@@ -216,7 +153,7 @@ export function ChangeHistoryTable() {
   }
 
   return (
-    <div className="w-fit">
+    <div className="min-w-[1100px] w-fit">
       <div className="w-full flex justify-between items-center mb-3">
         <div className="bg-blue-300 flex items-center justify-center rounded-lg p-4 max-w-fit w-full">
           <span className="text-slate-700 text-2xl font-semibold">
@@ -289,16 +226,16 @@ export function ChangeHistoryTable() {
 
       <div className="flex items-center justify-between py-4">
         <div className="text-sm text-gray-600">
-          نمایش{" "}
+          نمایش
           {table.getState().pagination.pageIndex *
             table.getState().pagination.pageSize +
-            1}{" "}
-          تا{" "}
+            1}
+          تا
           {Math.min(
             (table.getState().pagination.pageIndex + 1) *
             table.getState().pagination.pageSize,
             table.getFilteredRowModel().rows.length
-          )}{" "}
+          )}
           از {table.getFilteredRowModel().rows.length} رکورد
         </div>
 
