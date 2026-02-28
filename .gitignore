@@ -25,3 +25,6 @@ dist-ssr
 
 # Base URL file
 base.ts
+
+# documentation
+docs.md
